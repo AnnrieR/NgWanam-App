@@ -1,0 +1,34 @@
+# App only. Deploy lean Supabase + Studio separately using the README guide.
+# Supply variables via Dokploy Environment or --env-file /private/path/app.env.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?Set the public Supabase API URL}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:?Set the public anon or publishable key}
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?Set the public Supabase API URL}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:?Set the public anon or publishable key}
+      # Private keys belong at runtime only, never in build arguments.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:?Set the private server-only service-role key}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      GEMINI_ENABLED: ${GEMINI_ENABLED:-false}
+    expose:
+      - "3000"
+    # Dokploy routes the HTTPS domain to service app, container port 3000.
+    # Manual access is loopback-only; use an HTTPS reverse proxy publicly.
+    ports:
+      - "127.0.0.1:${APP_PORT:-3100}:3000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

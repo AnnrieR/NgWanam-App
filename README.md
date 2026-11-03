@@ -521,6 +521,33 @@ the image. The manual example binds only loopback; use an HTTPS reverse proxy fo
 public access. Dokploy handles routing itself, so it does not need this manual
 host-port mapping. Container image creation does not migrate or seed the database.
 
+#### Using the included `compose.yaml`
+
+The root `compose.yaml` runs **the Next.js app only**. Deploy Supabase + Studio
+separately using the guide above. This app Compose does not create/reset a database
+or transfer local uploaded images.
+
+Store the runtime values shown above in a private file outside Git, then run from
+the repository root:
+
+```bash
+docker compose --env-file /opt/ngwanam-secrets/app.env config --quiet
+docker compose --env-file /opt/ngwanam-secrets/app.env up -d --build
+docker compose --env-file /opt/ngwanam-secrets/app.env ps
+```
+
+Manual access is loopback-only at `127.0.0.1:3100` (`APP_PORT` overrides the port).
+Use an HTTPS reverse proxy for public access. Avoid printing resolved Compose
+configuration into shared logs because it contains private runtime keys.
+
+For Dokploy, create a **Compose service from this Git repository**, select
+`compose.yaml`, supply the Environment values, and route the HTTPS domain to
+service **`app`**, container port **3000**. Keep the build context at the repository
+root. Deploy either this Compose app or the separate Application described above,
+not both for the same website. The two public variables are passed as build args;
+private service-role/Gemini keys are runtime-only. Rebuild when public variables
+change. The Dockerfile supplies the health check.
+
 ### 8. Verify, back up and maintain
 
 - Test registration/login and customer/staff/admin/rider route restrictions.
