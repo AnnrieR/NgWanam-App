@@ -1,0 +1,60 @@
+.page {
+  min-height: 100dvh;
+  padding: 24px 16px 48px;
+  background: #f3f4f6;
+  color: #171717;
+  color-scheme: light;
+}
+
+.toolbar {
+  max-width: 800px;
+  margin: 0 auto 20px;
+}
+
+.paper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  border: 1px solid #d4d4d4;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.paper h1 { font-size: 24px; font-weight: 700; }
+.paper h2 { font-size: 16px; font-weight: 700; }
+.brand { border-bottom: 2px solid #171717; padding-bottom: 20px; }
+.meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 0; }
+.meta dt { color: #525252; font-size: 11px; }
+.meta dd { margin-bottom: 8px; }
+.notice { padding: 10px 12px; border: 1px dashed #737373; margin-bottom: 20px; font-weight: 700; }
+.items { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.items th, .items td { padding: 10px 6px; border-bottom: 1px solid #d4d4d4; vertical-align: top; text-align: right; font-variant-numeric: tabular-nums; }
+.items th:first-child, .items td:first-child { text-align: left; width: 46%; }
+.items th:nth-child(2) { width: 10%; }
+.items th:nth-child(3), .items th:nth-child(4) { width: 22%; }
+.items small { display: block; color: #525252; }
+.totals { margin: 20px 0 20px auto; max-width: 320px; }
+.totals > div { display: flex; justify-content: space-between; gap: 16px; padding: 5px 0; }
+.grandTotal { border-top: 2px solid #171717; font-size: 17px; font-weight: 700; }
+.footer { border-top: 1px solid #d4d4d4; padding-top: 16px; font-size: 11px; color: #525252; }
+
+@media (max-width: 520px) {
+  .paper { padding: 20px 14px; font-size: 11px; }
+  .meta { grid-template-columns: 1fr; gap: 8px; }
+  .items th, .items td { padding: 8px 3px; }
+}
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+  .page { min-height: auto; padding: 0; background: white; }
+  .toolbar { display: none !important; }
+  .paper { max-width: none; border: 0; border-radius: 0; padding: 0; font-size: 10pt; box-shadow: none; }
+  .meta { grid-template-columns: 1fr 1fr; }
+  .items { font-size: 10pt; }
+  .items thead { display: table-header-group; }
+  .items tr, .brand, .meta, .notice, .totals, .footer { break-inside: avoid; }
+  .paper a { color: inherit; text-decoration: none; }
+}

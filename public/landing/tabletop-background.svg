@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960" fill="none">
+  <!-- Original decorative artwork. No reference-image text is included. -->
+  <defs>
+    <radialGradient id="wine" cx=".49" cy=".42" r=".76"><stop stop-color="#65190f"/><stop offset=".54" stop-color="#470d08"/><stop offset="1" stop-color="#200603"/></radialGradient>
+    <radialGradient id="porcelain" cx=".38" cy=".32" r=".72"><stop stop-color="#fff3d5"/><stop offset=".7" stop-color="#f5d8aa"/><stop offset=".88" stop-color="#e8ba7f"/><stop offset=".94" stop-color="#fff0ca"/><stop offset="1" stop-color="#ad6937"/></radialGradient>
+    <linearGradient id="gold" x2="1" y2=".6"><stop stop-color="#8e491c"/><stop offset=".25" stop-color="#f5c676"/><stop offset=".48" stop-color="#ffe3a5"/><stop offset=".68" stop-color="#bb7737"/><stop offset=".88" stop-color="#f9d58d"/><stop offset="1" stop-color="#804117"/></linearGradient>
+    <linearGradient id="silk" x2=".8" y2="1"><stop stop-color="#da2b20"/><stop offset=".38" stop-color="#9d110c"/><stop offset=".62" stop-color="#4b0706"/><stop offset="1" stop-color="#bd2215"/></linearGradient>
+    <linearGradient id="wood" x2="1"><stop stop-color="#281108"/><stop offset=".4" stop-color="#9f6b3d"/><stop offset=".55" stop-color="#ffe3a0"/><stop offset=".65" stop-color="#623714"/><stop offset="1" stop-color="#24120b"/></linearGradient>
+    <linearGradient id="leaf" x2=".8" y2="1"><stop stop-color="#838d2c"/><stop offset=".5" stop-color="#536322"/><stop offset="1" stop-color="#253511"/></linearGradient>
+    <pattern id="weave" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 1H8M1 0V8" stroke="#f76843" stroke-opacity=".12" stroke-width=".6"/></pattern>
+    <pattern id="border" width="46" height="38" patternUnits="userSpaceOnUse"><path d="M0 4H40V32H12V16H28V24H20M46 37H4V8" stroke="#e3ad56" stroke-width="4"/></pattern>
+    <filter id="shadow" x="-.4" y="-.4" width="1.8" height="1.8"><feDropShadow dx="5" dy="14" stdDeviation="12" flood-color="#140200" flood-opacity=".65"/></filter>
+    <g id="petals" fill="#ad211b">
+      <path d="M0 0C-17-6-19-23-9-23C1-22 4-9 0 0Z"/>
+      <path d="M0 0C-17-6-19-23-9-23C1-22 4-9 0 0Z" transform="rotate(72)"/>
+      <path d="M0 0C-17-6-19-23-9-23C1-22 4-9 0 0Z" transform="rotate(144)"/>
+      <path d="M0 0C-17-6-19-23-9-23C1-22 4-9 0 0Z" transform="rotate(216)"/>
+      <path d="M0 0C-17-6-19-23-9-23C1-22 4-9 0 0Z" transform="rotate(288)"/>
+      <circle r="4" fill="#e6a838"/>
+    </g>
+    <g id="blossoms">
+      <path d="M-155 145C-58 65-8-15 101-108M-55 57C-76 4-68-28-103-73M-15 7C45 32 83 3 139 22M43-61C24-92 29-120 9-148M-80 85C-17 91 10 121 53 131" stroke="#60301d" stroke-width="6" stroke-linecap="round"/>
+      <path d="M-92-47L-48-39M65 12L85-20M1-119L-29-134M17 115L38 91M83-90L121-83" stroke="#7a3d22" stroke-width="3"/>
+      <use href="#petals" transform="translate(-101 -72) scale(.65)"/><use href="#petals" transform="translate(-54 -38) scale(.8)"/>
+      <use href="#petals" transform="translate(-40 28) scale(.9)"/><use href="#petals" transform="translate(-7 -8) scale(.7)"/>
+      <use href="#petals" transform="translate(67 13) scale(.75)"/><use href="#petals" transform="translate(90 -21) scale(.6)"/>
+      <use href="#petals" transform="translate(112 -85) scale(.72)"/><use href="#petals" transform="translate(14 -140) scale(.6)"/>
+      <use href="#petals" transform="translate(38 97) scale(.8)"/><use href="#petals" transform="translate(-65 80) scale(.65)"/>
+      <g fill="#b1291c"><ellipse cx="-72" cy="-10" rx="5" ry="9" transform="rotate(40 -72 -10)"/><ellipse cx="39" cy="-80" rx="4" ry="8"/><ellipse cx="111" cy="28" rx="5" ry="8"/></g>
+    </g>
+    <g id="plate"><circle r="215" fill="url(#porcelain)"/><circle r="209" stroke="#ffebc1" stroke-width="4"/><circle r="199" stroke="#b17c43" stroke-width="2"/><circle r="192" stroke="#ffedc9" stroke-width="3"/><circle r="172" stroke="#b58047" stroke-opacity=".3" stroke-width="2"/><circle r="168" fill="#fff2d7" fill-opacity=".28"/><use href="#blossoms" transform="translate(-10 0) rotate(-15)"/><path d="M-169-73A185 185 0 0 1 93-159" stroke="#fff7de" stroke-opacity=".8" stroke-width="4" stroke-linecap="round"/></g>
+    <g id="herb"><path d="M0 0C15-27 21-64 20-110" stroke="#727230" stroke-width="3"/><path d="M10-31C-28-30-48-56-58-75C-24-76-6-61 10-31Z" fill="url(#leaf)"/><path d="M17-60C44-57 60-80 71-103C39-99 23-83 17-60Z" fill="url(#leaf)"/><path d="M20-87C-6-94-14-121-16-143C8-129 21-112 20-87Z" fill="url(#leaf)"/><path d="M8-34L-49-70M19-63L63-96M19-91L-12-134" stroke="#a6a452" stroke-opacity=".55" stroke-width="1.4"/></g>
+    <g id="single-leaf"><path d="M0 0C9-32 38-45 70-44C57-16 28-4 0 0Z" fill="url(#leaf)"/><path d="M2-1L61-39M20-13L16-26M33-23L33-34M34-23L48-20" stroke="#a6a452" stroke-opacity=".6" stroke-width="1.4"/></g>
+    <g id="chili"><ellipse rx="31" ry="13" fill="#6b0904"/><ellipse cy="-3" rx="30" ry="12" fill="#e53619"/><ellipse cy="-3" rx="23" ry="7.5" fill="#69170a"/><path d="M-20-5Q0-15 23-4" stroke="#ff8151" stroke-width="2"/><g fill="#f6c277"><ellipse cx="-12" cy="-3" rx="3" ry="1.5"/><ellipse cx="1" cy="-7" rx="3" ry="1.5"/><ellipse cx="8" cy="0" rx="3" ry="1.5"/><ellipse cx="17" cy="-4" rx="2.5" ry="1.5"/></g></g>
+    <g id="seeds" fill="#f0bc75"><ellipse cx="0" cy="0" rx="3" ry="6" transform="rotate(-38)"/><ellipse cx="31" cy="30" rx="3" ry="5" transform="rotate(30 31 30)"/><ellipse cx="-14" cy="49" rx="2.5" ry="5" transform="rotate(-28 -14 49)"/><ellipse cx="53" cy="66" rx="3" ry="6" transform="rotate(54 53 66)"/><ellipse cx="16" cy="92" rx="2.5" ry="5" transform="rotate(12 16 92)"/></g>
+    <g id="cloud" stroke="#8e2317" stroke-width="5" stroke-linejoin="round" fill="#71180f"><path d="M0 73C21 67 19 42 42 43C37 14 70 8 86 24C107-11 147-2 153 25C185 17 208 39 202 60C234 67 246 47 275 49C254 60 258 80 226 82L44 87C25 87 20 69 0 73Z"/><path d="M45 68C25 42 75 23 85 51C90 70 67 81 60 67M88 36C107 4 157 26 137 54C125 69 102 47 119 40M137 79C157 56 182 89 196 65M154 28C183 28 189 66 169 66" stroke="#420d08" fill="none"/></g>
+  </defs>
+  <path fill="url(#wine)" d="M0 0H1600V960H0Z"/>
+  <!-- Broken, layered brushwork keeps the center quiet and frames the edges. -->
+  <g stroke-linecap="round">
+    <path d="M-88-38C85 5 44 132 95 252S187 362 324 407M-85 471C61 530 116 562 212 681S336 916 694 1017M1704 36C1456 122 1601 266 1490 381M1665 435C1436 421 1297 517 1344 656S1179 840 1036 980" stroke="#a81c12" stroke-width="27" opacity=".65"/>
+    <path d="M-35-9C64 61 44 142 96 253S180 366 296 395M-21 502C86 528 151 623 218 720S361 940 609 985M1663 32C1501 109 1573 249 1493 363M1632 461C1463 458 1320 526 1359 646S1228 844 1094 949" stroke="#da2b1b" stroke-width="7" opacity=".55"/>
+    <path d="M-29 17C62 90 43 177 116 286M-11 477C135 554 166 620 200 681M244 779C319 902 433 933 592 968M1581 89C1498 200 1572 251 1514 322M1605 483C1461 471 1348 554 1380 630M1293 804C1230 895 1153 896 1089 960" stroke="#ec3924" stroke-width="2" opacity=".6"/>
+    <path d="M-24 453C121 535 126 556 199 640M1480 473C1371 491 1303 557 1325 624M37 166C45 294 152 383 224 399M1517 135C1499 179 1514 235 1509 266" stroke="#6c1009" stroke-width="12"/>
+  </g>
+  <g opacity=".48"><use href="#cloud" transform="translate(112 49) scale(1.1)"/><use href="#cloud" transform="translate(1278 89) scale(.95)"/><use href="#cloud" transform="translate(-89 346) scale(.95)"/><use href="#cloud" transform="translate(1090 663) scale(.9)"/></g>
+  <!-- Folded red linens with a restrained gold woven border. -->
+  <g transform="translate(-65 683) rotate(-25)" filter="url(#shadow)"><path d="M0 0H321L340 384L-14 401Z" fill="url(#silk)"/><path d="M0 0H321L340 384L-14 401Z" fill="url(#weave)"/><path d="M13 0H62V397H13Z" fill="url(#border)"/><path d="M295 0L170 390L313 389Z" fill="#ed3827" opacity=".22"/><path d="M286 0L162 393" stroke="#310605" stroke-opacity=".65" stroke-width="6"/></g>
+  <g transform="translate(1266 819) rotate(-34)" filter="url(#shadow)"><path d="M0 0H354L371 332H-10Z" fill="url(#silk)"/><path d="M0 0H354L371 332H-10Z" fill="url(#weave)"/><path d="M20 0H66V332H20Z" fill="url(#border)"/><path d="M318 0L151 332H243Z" fill="#ea3525" opacity=".25"/><path d="M318 0L140 332" stroke="#460704" stroke-width="5"/></g>
+  <g filter="url(#shadow)"><use href="#plate" transform="translate(-160 173) scale(.94) rotate(13)"/><use href="#plate" transform="translate(-30 818) scale(1.05) rotate(8)"/><use href="#plate" transform="translate(1631 703) scale(.72) rotate(-12)"/></g>
+  <!-- Wooden rest and lacquered chopsticks. -->
+  <g transform="rotate(-33 277 768)" filter="url(#shadow)"><rect x="217" y="648" width="120" height="48" rx="6" fill="#7f3c16" stroke="#cf8b43" stroke-width="3"/><path d="M222 659H332M226 675H328" stroke="#db9451" stroke-opacity=".45" stroke-width="2"/><path d="M250 568L256 1017H267L256 568Z" fill="url(#wood)"/><path d="M274 561L283 1017H294L280 561Z" fill="url(#wood)"/><path d="M256 901H265M257 910H265M258 919H266M282 901H290M283 910H291M283 919H291" stroke="#e7c47a" stroke-width="3"/></g>
+  <!-- Brass spoon and fork; never overlap the central reading column. -->
+  <g transform="rotate(-33 1456 791)" filter="url(#shadow)"><path d="M1394 749L1394 1035Q1404 1050 1414 1035L1407 749Z" fill="url(#gold)" stroke="#8d4d21" stroke-width="2"/><ellipse cx="1400" cy="697" rx="36" ry="65" fill="url(#gold)" stroke="#edbe74" stroke-width="3"/><ellipse cx="1397" cy="691" rx="27" ry="52" fill="#9d6229" fill-opacity=".35"/><path d="M1382 657Q1369 697 1394 739" stroke="#ffe1a1" stroke-width="2"/><path d="M1471 747L1469 1035Q1480 1050 1490 1035L1483 747C1511 737 1511 723 1508 649L1499 649L1499 715L1490 716L1488 645L1480 645L1481 716L1472 716L1469 645L1461 647L1463 716L1455 716L1451 650L1443 653C1448 727 1443 736 1471 747Z" fill="url(#gold)" stroke="#dfaa64" stroke-width="2"/></g>
+  <g><use href="#herb" transform="translate(33 61) rotate(-64) scale(1.1)"/><use href="#herb" transform="translate(390 916) rotate(-63) scale(1.15)"/><use href="#herb" transform="translate(1606 516) rotate(-28) scale(1.18)"/><use href="#herb" transform="translate(1556 451) rotate(-59) scale(.9)"/>
+    <use href="#single-leaf" transform="translate(110 239) rotate(-10)"/><use href="#single-leaf" transform="translate(123 567) rotate(38)"/><use href="#single-leaf" transform="translate(1433 252) rotate(-25) scale(.85)"/><use href="#single-leaf" transform="translate(1449 609) rotate(-36) scale(.75)"/><use href="#single-leaf" transform="translate(419 812) rotate(17) scale(.8)"/>
+    <use href="#chili" transform="translate(111 154) rotate(27) scale(.9)"/><use href="#chili" transform="translate(384 743) rotate(27)"/><use href="#chili" transform="translate(1491 345) rotate(-34)"/><use href="#chili" transform="translate(1467 539) rotate(39)"/><use href="#chili" transform="translate(1232 818) rotate(-25)"/>
+    <use href="#seeds" transform="translate(123 64) rotate(15)"/><use href="#seeds" transform="translate(138 280) rotate(-22)"/><use href="#seeds" transform="translate(86 508) rotate(-40)"/><use href="#seeds" transform="translate(397 705) rotate(12)"/><use href="#seeds" transform="translate(498 862) rotate(37)"/><use href="#seeds" transform="translate(1522 265) rotate(31)"/><use href="#seeds" transform="translate(1455 412) rotate(48)"/><use href="#seeds" transform="translate(1280 838) rotate(50)"/>
+  </g>
+</svg>
