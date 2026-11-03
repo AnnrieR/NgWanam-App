@@ -1,0 +1,15 @@
+*
+!images/
+!images/**
+!vendor/
+!vendor/docker/
+!vendor/docker/volumes/
+!vendor/docker/volumes/db/
+!vendor/docker/volumes/db/*.sql
+!vendor/docker/volumes/api/
+!vendor/docker/volumes/api/envoy/
+!vendor/docker/volumes/api/envoy/envoy.yaml
+!vendor/docker/volumes/api/envoy/docker-entrypoint.sh
+!config/
+!config/envoy/
+!config/envoy/*.yaml

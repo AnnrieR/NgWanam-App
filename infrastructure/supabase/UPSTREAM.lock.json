@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/supabase/supabase",
+  "release": "self-hosted/v0.8.3",
+  "commit": "bc27d2661edd09a5d0b8d76ce33da6d4071a756e",
+  "files": {
+    "vendor/LICENSE": "c29468abcd629e248c2f76848155c386b733872bcabcc4cf65ef1e7c61431042",
+    "vendor/docker/docker-compose.yml": "1bf8df5776dd81e9be15790851b46cdca1d0be8556450d4c88d73089d3b97a8b",
+    "vendor/docker/volumes/db/roles.sql": "3ad717b225daa38aa982da26750f35641eb404e1eb5e69a763c22236ab96c1b2",
+    "vendor/docker/volumes/db/jwt.sql": "c1d3f5c01e44646c2e533c5a1c111821cc49cb5a4c2534e08cddad61d8fb0339",
+    "vendor/docker/volumes/db/realtime.sql": "7e9e442e7fc4dae05544c07b67bede37a00d84644304dfce4d937134cb4c8f88",
+    "vendor/docker/volumes/db/_supabase.sql": "9dce462adc04137d6afabcf28efa60a6c355270a4b32d7af58891ac4eb964c5f",
+    "vendor/docker/volumes/db/logs.sql": "f0463ce5030907acef49326d2bffd36002df0718035071be7c99bd7fc897c63d",
+    "vendor/docker/volumes/db/pooler.sql": "df97ebe148d94cfb92a5e37ebf972dfd496be195f0915ecf14396b2cf50efecb",
+    "vendor/docker/volumes/db/webhooks.sql": "05a61316b899374253891cbba66ce073d9273f33983c3f47961eda3aa26c2823",
+    "vendor/docker/volumes/api/envoy/envoy.yaml": "3697f23b0be9ec5b829f937c600eb9b878f1f778ab510b42ad5e4f14742447e9",
+    "vendor/docker/volumes/api/envoy/cds.yaml": "1d7514b891370ed27c25911df008887402e16ab09273e6e433225bb7f09f7905",
+    "vendor/docker/volumes/api/envoy/lds.template.yaml": "f6b7e2c7a58abf54fe0f5eba6ad144c9f0d2a8c445ab66e05b298fb64bf6fa32",
+    "vendor/docker/volumes/api/envoy/docker-entrypoint.sh": "8a0c9503764de32ba39e0d81e73629457b13ec42ef19897e30e4918c996d0508",
+    "config/envoy/cds.yaml": "de8ed8397d1ab50f6643a05a47cae806ec418aa6c00e1db7623338702ea6c37e",
+    "config/envoy/lds.template.yaml": "75946c482a00bb3e99b639e7ddce9ce7ad40b673fbc28206615cb7d48913110d"
+  }
+}

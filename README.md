@@ -246,6 +246,18 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 
 ## VPS installation: KVM 4 + Dokploy + lean Supabase + Studio
 
+**For shared-VPS production deployments, use the maintained
+[isolated Supabase stack](infrastructure/supabase/README.md).**
+
+- Dokploy GitHub Compose Path: `infrastructure/supabase/docker-compose.supabase.yml`
+- Includes pinned official bootstrap/config assets, isolated persistent volumes,
+  private networking, HTTPS routing, protected Studio and offline validation tools.
+- The Next.js web application stays separate; root `compose.yaml` is app-only.
+- No stack has been deployed automatically. Complete the deployment/restore checklist.
+
+<details>
+<summary>Archived manual single-stack guide — superseded; do not use for shared Dokploy deployments</summary>
+
 This is a **self-hosted alternative** to Supabase Cloud. Commands below target a
 fresh Ubuntu 24.04 VPS; replace example domains with your own. KVM 4 plan resources
 vary by provider: check the actual CPU/RAM/disk allocation, monitor usage, and build
@@ -576,6 +588,8 @@ Official references (re-check when changing versions):
 [Supabase Docker self-hosting](https://supabase.com/docs/guides/self-hosting/docker),
 [pinned upstream Compose](https://github.com/supabase/supabase/blob/self-hosted/v0.8.3/docker/docker-compose.yml).
 
+</details>
+
 ---
 
 ## Common Problems
@@ -591,7 +605,9 @@ If port 3000 is busy for the app: `npm run dev -- -p 3001`.
 → Check that `.env.local` exists (step 4) and restart the app with `npm run dev`.
 
 **Data looks wrong or you want a clean slate**
-→ `npx supabase db reset` (deletes local data and reloads the sample menu).
+→ Verify the project/API URL and back up the database before troubleshooting.
+For an existing database, apply pending forward migrations; do not reset/reseed
+working accounts, transactions or uploads to fix a display/deployment problem.
 
 **Cloning asks for a password / 404**
 → The repo is private. Ask to be invited on GitHub with the account you are signed in with.
