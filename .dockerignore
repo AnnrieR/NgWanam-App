@@ -1,0 +1,27 @@
+.git
+.github
+node_modules
+.next
+out
+build
+coverage
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+*.log
+*.dump
+*.bak
+*.zip
+*.pem
+*.key
+backups
+private
+supabase/.temp
+supabase/.branches
+# Database assets/docs are administered separately, never baked into the app image.
+supabase
+docs
+scripts
+.agents
+.claude
