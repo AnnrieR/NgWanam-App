@@ -60,6 +60,25 @@ try {
   for (const cluster of [...lds.matchAll(/^\s+cluster: (\S+)$/gm)].map(m => m[1])) assert(clusters.includes(cluster), `Dangling cluster: ${cluster}`);
   assert(lds.includes('name: functions-disabled') && lds.includes('envoy.filters.http.basic_auth') && lds.includes('${DASHBOARD_BASIC_AUTH}'));
   assert(lds.includes('${ANON_KEY}') && lds.includes('${SERVICE_ROLE_KEY}')); count++;
+  // Upstream Storage is an UNNAMED sibling route. Disabling functions must not
+  // consume it, or all Storage SDK requests fall through to the Studio catch-all.
+  const upstreamLds = fs.readFileSync(path.join(root, 'vendor/docker/volumes/api/envoy/lds.template.yaml'), 'utf8');
+  const routeMarker = '                      - match:\n                          prefix: /storage/v1/\n';
+  const storageStart = upstreamLds.indexOf(routeMarker);
+  assert(storageStart >= 0, 'Upstream Storage route missing');
+  const storageEnd = upstreamLds.indexOf('                      - name: auth-v1-protected', storageStart);
+  assert(storageEnd > storageStart, 'Unexpected upstream route boundary');
+  const storageRoute = upstreamLds.slice(storageStart, storageEnd);
+  assert(lds.includes(storageRoute), 'Storage route must preserve upstream routing and per-route auth filters');
+  assert.equal(lds.split(routeMarker).length - 1, 1, 'Storage route must exist exactly once');
+  assert(lds.indexOf(routeMarker) < lds.indexOf('                          cluster: studio'), 'Storage route must precede Studio');
+  const vendoring = fs.readFileSync(path.join(root, 'scripts/vendor-upstream.mjs'), 'utf8');
+  const expressionSource = vendoring.match(/^const expression = \/(.+)\/m;$/m);
+  assert(expressionSource, 'Vendoring boundary expression missing');
+  const boundary = new RegExp(expressionSource[1], 'm');
+  assert(!upstreamLds.match(boundary)?.[0].includes('/storage/v1/'), 'Vendoring boundary consumes unnamed Storage route');
+  const regenerated = upstreamLds.replace(boundary, (_, spaces) => `${spaces}- name: functions-disabled\n${spaces}  match:\n${spaces}    prefix: /functions/v1/\n${spaces}  direct_response:\n${spaces}    status: 404\n\n`);
+  assert.equal(regenerated, lds, 'Derived template must reproduce from pinned upstream without losing routes'); count++;
   console.log(`PASS ${count} offline configuration test groups: valid config, no-overwrite, negative security checks, two-instance isolation, official image/asset coverage and gateway dependency review.`);
   console.log('No containers started, no deployments, no database/storage changes, no secrets printed.');
 } finally {

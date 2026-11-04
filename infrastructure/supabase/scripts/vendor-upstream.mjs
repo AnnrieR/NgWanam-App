@@ -33,7 +33,7 @@ const clusters = cds.split(/(?=^  - '@type':)/m);
 if (clusters.filter(s => /\n    name: functions\n/.test(s)).length !== 1) throw new Error('Unexpected cluster format');
 cds = clusters.filter(s => !/\n    name: functions\n/.test(s)).join('');
 let lds = fs.readFileSync(path.join(source, 'lds.template.yaml'), 'utf8');
-const expression = /^(\s*)- name: functions-v1-all\n[\s\S]*?(?=^\1- name:)/m;
+const expression = /^([ \t]*)- name: functions-v1-all\n[\s\S]*?(?=^\1- )/m;
 if (!expression.test(lds)) throw new Error('Unexpected functions route format');
 lds = lds.replace(expression, (_, spaces) => `${spaces}- name: functions-disabled\n${spaces}  match:\n${spaces}    prefix: /functions/v1/\n${spaces}  direct_response:\n${spaces}    status: 404\n\n`);
 for (const [file, text] of [['cds.yaml', cds], ['lds.template.yaml', lds]]) {
