@@ -12,18 +12,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/form-input";
 import { cn } from "@/lib/utils";
+import { GoogleAuthForm } from "@/components/google-auth-form";
 
 import { signIn, signUp, type AuthFormState } from "./actions";
 
 type AuthFormProps = {
   mode: "login" | "register";
   notice?: string;
+  googleEnabled?: boolean;
 };
 
 const initialState: AuthFormState = {};
 const authInputClass = "block h-11 appearance-none rounded-xl border-input bg-background px-4 py-0 text-base leading-normal md:text-base focus-visible:ring-2";
 
-export function AuthForm({ mode, notice }: AuthFormProps) {
+export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps) {
   const action = mode === "login" ? signIn : signUp;
   const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(action, initialState);
   const isRegister = mode === "register";
@@ -52,6 +54,10 @@ export function AuthForm({ mode, notice }: AuthFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0 pb-0">
+        {googleEnabled && <div className="mb-6 grid gap-3">
+          <GoogleAuthForm />
+          <p className="text-center text-xs text-muted-foreground">Or use your email and password. Already registered? Sign in first, then link Google in Account security.</p>
+        </div>}
         <Form action={formAction} className="space-y-6">
           <FieldGroup>
             {isRegister && (

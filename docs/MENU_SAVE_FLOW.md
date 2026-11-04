@@ -35,3 +35,29 @@ Menu Management remains `/menu` for staff/admin; customer shopping stays `/home`
   migrations, historical edits or hosted deployment were performed.
 
 Actual-phone and hosted-deployment verification remain separate and outstanding.
+
+## Delete an individual serving
+
+Each existing serving has its own **Delete** button beside Save, followed by a
+confirmation dialog naming the serving/label. Cancel does not write anything.
+Confirmed deletion uses the same inline result, shared submission lock and success
+notification as saves; failures stay open, and search/page state is retained.
+Success closes the edit modal, as with other successful menu changes.
+
+Apply `20261105020000_retire_menu_servings.sql` manually **before** deploying this
+web change. No working-database migration or deployment is run automatically.
+Deletion retires only the selected serving and takes it off sale. Menu management
+hides retired servings; the catalog's existing active-only filter excludes them.
+Existing order references, item/serving price snapshots, inventory/reservations and
+audit history are not deleted or rewritten, so unfinished orders can still finish.
+Other servings are unchanged. Retired rows cannot be put back on sale. An item may
+have zero current servings (not orderable until a serving is added). A new serving
+may reuse the removed name, but receives a new ID/inventory row; old stock is never
+transferred automatically. Inventory history rows are deliberately retained.
+
+`npm run test:menu` covers action authorization/confirmation/errors and inline
+responses. To test the migration in a randomly named scratch database only, set
+`MENU_TEST_DB_CONTAINER` to an approved local Supabase Postgres container and run
+`npm run test:serving-delete:db`. This checks retirement, sibling/order/stock
+preservation, stale/repeated deletion, name reuse and privilege restrictions. It
+does not verify the live website or an actual phone.

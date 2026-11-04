@@ -72,6 +72,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           <div className="pointer-events-none absolute right-5 bottom-0 hidden text-orange-200/70 dark:text-orange-900/60 sm:block"><UsersRound className="size-20" /></div>
         </Card>
 
+        <Link href="/account/security" className="block rounded-lg border border-slate-200 p-4 text-sm font-semibold hover:underline dark:border-slate-700">Account security · Google sign-in</Link>
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
           <Disclosure className="group border-b border-slate-100 dark:border-slate-800" id="edit-profile">
             <DisclosureSummary className="flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">

@@ -16,6 +16,7 @@ function setup(options = {}) {
       const chain = {
         select: () => chain,
         eq: () => chain,
+        is: () => chain,
         update: payload => { updating = true; calls.updates.push({ table, payload }); return chain; },
         single: async () => updating
           ? { data: options.updateError ? null : { id }, error: options.updateError ?? null }
@@ -65,7 +66,7 @@ for (const patch of [{ price: "" }, { price: "-1" }, { price: "NaN" }, { categor
   assert.equal(calls.uploads.length, 0);
 }
 assert((await setup().actions.createMenuEntry(form({ price: "0" }))).ok); groups++;
-for (const operation of ["createMenuCategory", "createMenuEntry", "updateMenuItem", "createMenuVariant", "updateMenuVariant"]) {
+for (const operation of ["createMenuCategory", "createMenuEntry", "updateMenuItem", "createMenuVariant", "updateMenuVariant", "deleteMenuVariant"]) {
   const { actions, calls } = setup({ denied: true });
   await assert.rejects(actions[operation](form()), /Access denied/);
   assert.equal(calls.rpc.length + calls.updates.length + calls.uploads.length, 0);
@@ -115,6 +116,18 @@ for (const operation of ["createMenuCategory", "createMenuVariant", "updateMenuV
 }
 assert.equal((await setup({ rpcError: {} }).actions.createMenuCategory(form({ name: "Duplicate" }))).ok, false);
 assert.equal((await setup({ rpcError: {} }).actions.createMenuVariant(form())).ok, false); groups++;
+{
+  for (const patch of [{ variantId: "bad", confirmed: "yes" }, { confirmed: "no" }]) {
+    const test = setup();
+    assert.equal((await test.actions.deleteMenuVariant(form(patch))).ok, false);
+    assert.equal(test.calls.rpc.length, 0);
+  }
+  const success = setup();
+  assert((await success.actions.deleteMenuVariant(form({ confirmed: "yes" }))).ok);
+  assert.deepEqual(success.calls.rpc, [{ name: "delete_menu_variant", payload: { p_menu_variant_id: id } }]);
+  assert(success.calls.refreshed.includes("/menu") && success.calls.refreshed.includes("/home"));
+  assert.equal((await setup({ rpcError: {} }).actions.deleteMenuVariant(form({ confirmed: "yes" }))).ok, false);
+} groups++;
 const ui = fs.readFileSync("src/app/menu/menu-crud.tsx", "utf8");
 assert(ui.includes("event.preventDefault()") && ui.includes("if (lockRef.current) return"));
 assert(ui.includes('<fieldset disabled={busy}') && ui.includes('aria-busy={busy}'));

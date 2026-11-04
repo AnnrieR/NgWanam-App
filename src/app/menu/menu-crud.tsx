@@ -10,13 +10,14 @@ import { createContext, startTransition, useContext, useEffect, useMemo, useRef,
 import { CheckCircle2, X } from "lucide-react";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form-input";
 import { Textarea } from "@/components/ui/textarea";
 import { MenuImage } from "@/components/menu-image";
 
-import { createMenuCategory, createMenuEntry, createMenuVariant, deleteMenuItem, updateMenuVariant, updateMenuItem, type MenuSaveResult } from "./actions";
+import { createMenuCategory, createMenuEntry, createMenuVariant, deleteMenuItem, deleteMenuVariant, updateMenuVariant, updateMenuItem, type MenuSaveResult } from "./actions";
 
 export type MenuVariant = { id: string; name: string; servingLabel: string; price: number; isActive: boolean };
 
@@ -355,6 +356,28 @@ function CreateForm({ categories, onCancel }: { categories: CategoryOption[]; on
   );
 }
 
+function DeleteServing({ variant }: { variant: MenuVariant }) {
+  const [open, setOpen] = useState(false);
+  const busy = useContext(MenuSaveContext)?.busy ?? false;
+  return <>
+    <Button aria-label={`Delete serving ${variant.name} ${variant.servingLabel}`} disabled={busy} size="sm" type="button" variant="destructive" onClick={() => setOpen(true)}>Delete</Button>
+    <AlertDialog open={open} onOpenChange={next => { if (!busy) setOpen(next); }}>
+      <AlertDialogContent>
+        <AlertDialogTitle>Delete {variant.name} · {variant.servingLabel}?</AlertDialogTitle>
+        <AlertDialogDescription>This removes this serving size and price from the menu. Existing orders, stock records and history are kept. Other serving sizes are not deleted.</AlertDialogDescription>
+        <MenuSaveForm action={deleteMenuVariant} className="mt-5">
+          <input name="variantId" type="hidden" value={variant.id} />
+          <input name="confirmed" type="hidden" value="yes" />
+          <div className="flex justify-end gap-2">
+            <Button disabled={busy} type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button disabled={busy} type="submit" variant="destructive">{busy ? "Deleting…" : "Delete serving"}</Button>
+          </div>
+        </MenuSaveForm>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>;
+}
+
 function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]; onCancel: () => void; row: MenuRow }) {
   const busy = useContext(MenuSaveContext)?.busy ?? false;
   return (
@@ -381,7 +404,8 @@ function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]
         <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Serving sizes &amp; price</h3>
         <div className="space-y-3">
           {row.variants.map((variant) => (
-            <MenuSaveForm action={updateMenuVariant} className="flex flex-wrap items-center gap-3" key={variant.id}>
+            <div className="flex flex-wrap items-center gap-3" key={variant.id}>
+            <MenuSaveForm action={updateMenuVariant} className="flex flex-wrap items-center gap-3">
               <input name="variantId" type="hidden" value={variant.id} />
               <Input aria-label="Serving name" defaultValue={variant.name} name="variantName" required className="w-36" />
               <Input aria-label="Serving label" defaultValue={variant.servingLabel} name="servingLabel" required className="w-36" />
@@ -389,6 +413,8 @@ function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]
               <Label className="flex items-center gap-1.5 text-xs font-medium"><Input defaultChecked={variant.isActive} name="isActive" type="checkbox" /> On sale</Label>
               <SaveButton className="h-8 rounded-md px-3 text-xs">Save</SaveButton>
             </MenuSaveForm>
+            <DeleteServing variant={variant} />
+            </div>
           ))}
         </div>
         <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">Prices save on their own button - each serving is a separate record.</p>

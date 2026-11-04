@@ -23,8 +23,8 @@ type RawItem = {
   approval_status?: string;
   categories?: { id?: string; name?: string } | Array<{ id?: string; name?: string }> | null;
   menu_variants?:
-    | Array<{ id?: string; name?: string; serving_label?: string; price?: number; is_active?: boolean }>
-    | { id?: string; name?: string; serving_label?: string; price?: number; is_active?: boolean }
+    | Array<{ id?: string; name?: string; serving_label?: string; price?: number; is_active?: boolean; retired_at?: string | null }>
+    | { id?: string; name?: string; serving_label?: string; price?: number; is_active?: boolean; retired_at?: string | null }
     | null;
 };
 
@@ -55,15 +55,17 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
   const { error, updated } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: categoryRows }, { data: itemRows }] = await Promise.all([
+  const [{ data: categoryRows }, { data: itemRows, error: menuLoadError }] = await Promise.all([
     supabase.from("categories").select("id, name").order("sort_order"),
     supabase
       .from("menu_items")
       .select(
-        "id, name, description, image_url, category_id, is_best_seller, requires_preorder, is_active, approval_status, categories(id, name), menu_variants(id, name, serving_label, price, is_active)",
+        "id, name, description, image_url, category_id, is_best_seller, requires_preorder, is_active, approval_status, categories(id, name), menu_variants(id, name, serving_label, price, is_active, retired_at)",
       )
       .order("name"),
   ]);
+
+  if (menuLoadError) return <p role="alert" className="p-6 text-destructive">Menu data could not be loaded. Ask an administrator to check the database connection and required menu migrations, then refresh. Existing menu records have not been removed.</p>;
 
   const categories = ((categoryRows ?? []) as Array<{ id: string; name: string }>).map((category) => ({
     id: category.id,
@@ -73,7 +75,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
   const rows = ((itemRows ?? []) as RawItem[]).map((item): MenuRow => {
     const category = one(item.categories);
     const raw = item.menu_variants;
-    const variants = (Array.isArray(raw) ? raw : raw ? [raw] : []).filter(Boolean);
+    const variants = (Array.isArray(raw) ? raw : raw ? [raw] : []).filter(variant => variant && !variant.retired_at);
     return {
       id: item.id,
       name: item.name,

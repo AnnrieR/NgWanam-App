@@ -183,6 +183,7 @@ export async function updateMenuVariant(formData: FormData): Promise<MenuSaveRes
     .from("menu_variants")
     .update({ name, serving_label: servingLabel, price, is_active: formData.get("isActive") === "on" })
     .eq("id", variantId)
+    .is("retired_at", null)
     .select("id")
     .single();
 
@@ -190,6 +191,19 @@ export async function updateMenuVariant(formData: FormData): Promise<MenuSaveRes
 
   refreshMenu();
   return { ok: true, message: "Serving details and price saved." };
+}
+
+export async function deleteMenuVariant(formData: FormData): Promise<MenuSaveResult> {
+  await requireRole(["staff", "admin"]);
+  const variantId = String(formData.get("variantId") ?? "");
+  if (!uuid.test(variantId) || formData.get("confirmed") !== "yes") {
+    return { ok: false, error: "Confirm which serving size you want to delete." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_menu_variant", { p_menu_variant_id: variantId });
+  if (error) return { ok: false, error: "The serving could not be deleted. Refresh the menu and try again; it may already be deleted." };
+  refreshMenu();
+  return { ok: true, message: "Serving size deleted from the menu. Existing orders and stock history were preserved." };
 }
 
 /**

@@ -3,6 +3,10 @@
 Online ordering, delivery, inventory, and staff operations system for Ng Wanam Food House.
 Built with **Next.js**, **Supabase**, and **Tailwind CSS**.
 
+Google registration/login and ownership-validated account linking are opt-in:
+see [Google Auth setup and security](docs/GOOGLE_AUTH.md). Apply its security
+migration before enabling Google; existing email/password login is preserved.
+
 ---
 
 ## What You Need to Install (One Time Only)
