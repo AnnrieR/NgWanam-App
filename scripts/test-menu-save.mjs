@@ -7,6 +7,12 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
 const id = "10000000-0000-0000-0000-000000000001";
+const schemaCompiled = ts.transpileModule(fs.readFileSync("src/lib/menu-schema.ts", "utf8"), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const schemaModule = { exports: {} };
+new Function("exports", schemaCompiled)(schemaModule.exports);
+const schema = schemaModule.exports;
 function setup(options = {}) {
   const calls = { roles: [], rpc: [], updates: [], uploads: [], removed: [], refreshed: [] };
   const client = {
@@ -19,7 +25,7 @@ function setup(options = {}) {
         is: () => chain,
         update: payload => { updating = true; calls.updates.push({ table, payload }); return chain; },
         single: async () => updating
-          ? { data: options.updateError ? null : { id }, error: options.updateError ?? null }
+          ? { data: options.updateError ? null : { id }, error: options.legacyUpdate && calls.updates.length === 1 ? { code: "42703", message: "column retired_at does not exist" } : options.updateError ?? null }
           : { data: options.readError ? null : { image_url: "https://storage.test/menu-photos/old.png" }, error: options.readError ?? null },
       };
       return chain;
@@ -36,6 +42,7 @@ function setup(options = {}) {
     "next/navigation": { redirect: () => { throw Error("Unexpected navigation on save"); } },
     "@/lib/auth": { requireRole: async roles => { calls.roles.push(roles); if (options.denied) throw Error("Access denied"); return { profile: { role: options.role ?? "admin" } }; } },
     "@/lib/supabase/server": { createClient: async () => client },
+    "@/lib/menu-schema": schema,
     "@/lib/validate-image": { validateImage: async file => options.invalidImage || file.size >= 1048576 ? null : { bytes: Buffer.from(await file.arrayBuffer()), type: "png" } },
   };
   new Function("module", "exports", "require", compiled)(result, result.exports, name => {
@@ -50,6 +57,35 @@ function form(patch = {}) {
   return data;
 }
 let groups = 0;
+{
+  const missing = { code: "42703", message: "column menu_variants_1.retired_at does not exist" };
+  assert(schema.missingServingRetirementColumn(missing));
+  assert(schema.missingServingRetirementColumn({ code: "PGRST204", message: "Could not find retired_at in the schema cache" }));
+  assert(!schema.missingServingRetirementColumn({ code: "42703", message: "column unrelated does not exist" }));
+  for (const firstError of [null, missing, { code: "42501", message: "permission denied" }, { code: "NETWORK", message: "connection failed" }]) {
+    const selections = [];
+    const records = [{ id, name: "Existing item" }];
+    const result = await schema.loadMenuWithCompatibility({ from: () => ({ select: selection => {
+      selections.push(selection);
+      return { order: async () => ({ data: selections.length === 1 && firstError ? null : records, error: selections.length === 1 ? firstError : null }) };
+    } }) });
+    if (firstError === missing) {
+      assert.equal(selections.length, 2);
+      assert(!selections[1].includes("retired_at"));
+      assert.equal(result.servingDeletionAvailable, false);
+      assert.deepEqual(result.data, records);
+      assert.equal(result.error, null);
+    } else {
+      assert.equal(selections.length, 1);
+      assert.equal(result.error, firstError);
+      assert.equal(result.servingDeletionAvailable, !firstError);
+    }
+  }
+  const legacy = setup({ legacyUpdate: true });
+  assert((await legacy.actions.updateMenuVariant(form())).ok);
+  assert.equal(legacy.calls.updates.length, 2);
+  assert.equal((await setup({ updateError: { code: "42501", message: "permission denied" } }).actions.updateMenuVariant(form())).ok, false);
+} groups++;
 for (const role of ["admin", "staff"]) {
   const { actions, calls } = setup({ role });
   const result = await actions.createMenuEntry(form());

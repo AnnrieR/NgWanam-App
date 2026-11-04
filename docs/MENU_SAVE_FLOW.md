@@ -44,8 +44,14 @@ Confirmed deletion uses the same inline result, shared submission lock and succe
 notification as saves; failures stay open, and search/page state is retained.
 Success closes the edit modal, as with other successful menu changes.
 
-Apply `20261105020000_retire_menu_servings.sql` manually **before** deploying this
-web change. No working-database migration or deployment is run automatically.
+The web change supports both old and migrated databases. When `retired_at` is
+missing, Menu loading retries the legacy query and existing serving edits retry
+without the new column. Only the specific missing-column/schema-cache error
+enables this fallback; real permission/connection failures remain errors. Serving
+Delete is disabled with an explanation until the migration is installed. Normal
+adding/editing remains available. Apply `20261105020000_retire_menu_servings.sql`
+manually to enable serving Delete. No working-database migration or deployment is
+run automatically.
 Deletion retires only the selected serving and takes it off sale. Menu management
 hides retired servings; the catalog's existing active-only filter excludes them.
 Existing order references, item/serving price snapshots, inventory/reservations and
@@ -61,3 +67,10 @@ responses. To test the migration in a randomly named scratch database only, set
 `npm run test:serving-delete:db`. This checks retirement, sibling/order/stock
 preservation, stale/repeated deletion, name reuse and privilege restrictions. It
 does not verify the live website or an actual phone.
+
+Compatibility fix verification: lint and production build passed; the menu suite
+now has 11 groups, including missing-column fallback and legacy price edits, plus
+no fallback on permission/network errors. An authenticated local production HTTP
+request rendered Menu against the existing unmigrated local database with serving
+Delete disabled. No menu fixtures, working-database migrations or transaction edits
+were required. Hosted/browser/actual-phone verification of this fix is outstanding.

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { missingServingRetirementColumn } from "@/lib/menu-schema";
 import { requireRole } from "@/lib/auth";
 import { validateImage } from "@/lib/validate-image";
 
@@ -179,13 +180,14 @@ export async function updateMenuVariant(formData: FormData): Promise<MenuSaveRes
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("menu_variants")
+  const update = () => supabase.from("menu_variants")
     .update({ name, serving_label: servingLabel, price, is_active: formData.get("isActive") === "on" })
-    .eq("id", variantId)
-    .is("retired_at", null)
-    .select("id")
-    .single();
+    .eq("id", variantId);
+  let { error } = await update().is("retired_at", null).select("id").single();
+  if (missingServingRetirementColumn(error)) {
+    // Old schema has no retired rows; existing price edits must keep working.
+    ({ error } = await update().select("id").single());
+  }
 
   if (error) return { ok: false, error: "The serving details and price could not be saved. Check whether that serving name is already in use." };
 

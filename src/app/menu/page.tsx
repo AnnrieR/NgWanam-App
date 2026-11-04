@@ -1,6 +1,7 @@
 import { requireRole } from "@/lib/auth";
 import { one } from "@/lib/embedded";
 import { createClient } from "@/lib/supabase/server";
+import { loadMenuWithCompatibility } from "@/lib/menu-schema";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -55,14 +56,9 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
   const { error, updated } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: categoryRows }, { data: itemRows, error: menuLoadError }] = await Promise.all([
+  const [{ data: categoryRows }, { data: itemRows, error: menuLoadError, servingDeletionAvailable }] = await Promise.all([
     supabase.from("categories").select("id, name").order("sort_order"),
-    supabase
-      .from("menu_items")
-      .select(
-        "id, name, description, image_url, category_id, is_best_seller, requires_preorder, is_active, approval_status, categories(id, name), menu_variants(id, name, serving_label, price, is_active, retired_at)",
-      )
-      .order("name"),
+    loadMenuWithCompatibility(supabase),
   ]);
 
   if (menuLoadError) return <p role="alert" className="p-6 text-destructive">Menu data could not be loaded. Ask an administrator to check the database connection and required menu migrations, then refresh. Existing menu records have not been removed.</p>;
@@ -126,7 +122,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
         </p>
       )}
 
-      <MenuCrud categories={categories} rows={rows} />
+      <MenuCrud categories={categories} rows={rows} servingDeletionAvailable={servingDeletionAvailable} />
     </main>
   );
 }

@@ -109,7 +109,7 @@ function SaveButton({ children, className, creating = false }: { children: React
  * `updateMenuVariant` acts on a single variant - so each serving keeps its own
  * tiny form instead of the modal pretending one submit covers every price.
  */
-export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; rows: MenuRow[] }) {
+export function MenuCrud({ categories, rows, servingDeletionAvailable = false }: { categories: CategoryOption[]; rows: MenuRow[]; servingDeletionAvailable?: boolean }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<{ mode: "create" } | { mode: "edit"; row: MenuRow } | null>(null);
@@ -275,7 +275,7 @@ export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; r
           {editing.mode === "create" ? (
             <CreateForm categories={categories} onCancel={() => setEditing(null)} />
           ) : (
-            <EditForms categories={categories} row={editing.row} onCancel={() => setEditing(null)} />
+            <EditForms categories={categories} row={editing.row} servingDeletionAvailable={servingDeletionAvailable} onCancel={() => setEditing(null)} />
           )}
         </Modal>
       )}
@@ -378,7 +378,7 @@ function DeleteServing({ variant }: { variant: MenuVariant }) {
   </>;
 }
 
-function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]; onCancel: () => void; row: MenuRow }) {
+function EditForms({ categories, onCancel, row, servingDeletionAvailable }: { categories: CategoryOption[]; onCancel: () => void; row: MenuRow; servingDeletionAvailable: boolean }) {
   const busy = useContext(MenuSaveContext)?.busy ?? false;
   return (
     <div>
@@ -413,11 +413,12 @@ function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]
               <Label className="flex items-center gap-1.5 text-xs font-medium"><Input defaultChecked={variant.isActive} name="isActive" type="checkbox" /> On sale</Label>
               <SaveButton className="h-8 rounded-md px-3 text-xs">Save</SaveButton>
             </MenuSaveForm>
-            <DeleteServing variant={variant} />
+            {servingDeletionAvailable ? <DeleteServing variant={variant} /> : <Button disabled size="sm" type="button" variant="outline" title="Requires the serving-delete database update">Delete</Button>}
             </div>
           ))}
         </div>
         <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">Prices save on their own button - each serving is a separate record.</p>
+        {!servingDeletionAvailable && <p className="mt-2 text-xs text-muted-foreground">Serving Delete is temporarily unavailable until its database update is installed. Adding and editing servings still work.</p>}
         <MenuSaveForm action={createMenuVariant} className="mt-4 grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
           <input name="menuItemId" type="hidden" value={row.id} />
           <h4 className="text-sm font-semibold sm:col-span-2">Add serving size</h4>
