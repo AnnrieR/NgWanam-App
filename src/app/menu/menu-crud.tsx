@@ -6,7 +6,8 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Label } from "@/components/ui/label";
 import { FormSelect, SelectOption } from "@/components/ui/form-select";
 
-import { useEffect, useMemo, useState } from "react";
+import { createContext, startTransition, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { CheckCircle2, X } from "lucide-react";
 import { ConfirmAction } from "@/components/confirm-action";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
@@ -15,7 +16,7 @@ import { Input } from "@/components/ui/form-input";
 import { Textarea } from "@/components/ui/textarea";
 import { MenuImage } from "@/components/menu-image";
 
-import { createMenuCategory, createMenuEntry, createMenuVariant, deleteMenuItem, updateMenuVariant, updateMenuItem } from "./actions";
+import { createMenuCategory, createMenuEntry, createMenuVariant, deleteMenuItem, updateMenuVariant, updateMenuItem, type MenuSaveResult } from "./actions";
 
 export type MenuVariant = { id: string; name: string; servingLabel: string; price: number; isActive: boolean };
 
@@ -50,6 +51,54 @@ const labelClass = "grid gap-1.5 text-xs font-medium text-slate-600 dark:text-sl
 const fieldClass = "h-9 rounded-3xl border border-transparent bg-input/50 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-slate-800";
 const areaClass = "min-h-20 rounded-3xl border border-transparent bg-input/50 px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:bg-slate-800";
 
+const MenuSaveContext = createContext<{
+  busy: boolean;
+  setBusy: (busy: boolean) => void;
+  lockRef: RefObject<boolean>;
+  onSuccess: (message: string) => void;
+} | null>(null);
+
+/** Native onSubmit avoids React's automatic action-form reset on failed saves,
+ * preserving text, selections, checkboxes and the selected upload for a retry. */
+function MenuSaveForm({ action, children, className }: {
+  action: (form: FormData) => Promise<MenuSaveResult>;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const context = useContext(MenuSaveContext);
+  const [error, setError] = useState("");
+  if (!context) throw new Error("MenuSaveForm requires a menu save context");
+  const { busy, setBusy, lockRef, onSuccess } = context;
+  return <Form className={className} aria-busy={busy} onSubmit={event => {
+    event.preventDefault();
+    if (lockRef.current) return;
+    const data = new FormData(event.currentTarget);
+    lockRef.current = true;
+    setBusy(true);
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await action(data);
+        if (result.ok) onSuccess(result.message);
+        else setError(result.error);
+      } catch {
+        setError("We could not confirm the save. Your inputs have been kept. Check the menu list before retrying if the connection was interrupted.");
+      } finally {
+        lockRef.current = false;
+        setBusy(false);
+      }
+    });
+  }}>
+    <fieldset disabled={busy} className="contents">{children}</fieldset>
+    {error && <p role="alert" className="col-span-full mt-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
+  </Form>;
+}
+
+function SaveButton({ children, className, creating = false }: { children: React.ReactNode; className?: string; creating?: boolean }) {
+  const busy = useContext(MenuSaveContext)?.busy ?? false;
+  return <Button className={className} disabled={busy} size="sm" type="submit">{busy ? creating ? "Creating…" : "Saving…" : children}</Button>;
+}
+
 /**
  * The Menu tab itself: one row per menu item, searchable, with an Add modal
  * that collects everything the row stores (category, name, description, first
@@ -64,7 +113,15 @@ export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; r
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<{ mode: "create" } | { mode: "edit"; row: MenuRow } | null>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
-
+  const [busy, setBusy] = useState(false);
+  const lockRef = useRef(false);
+  const [notice, setNotice] = useState<{ id: number; message: string } | null>(null);
+  const noticeId = useRef(0);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 6000);
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -87,7 +144,19 @@ export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; r
   const inactive = rows.filter((row) => !row.isActive).length;
 
   return (
+    <MenuSaveContext.Provider value={{ busy, setBusy, lockRef, onSuccess: message => {
+      setEditing(null);
+      setCategoryOpen(false);
+      setNotice({ id: ++noticeId.current, message });
+    } }}>
     <div>
+      <div role="status" aria-live="polite" aria-atomic="true" className="pointer-events-none fixed top-4 right-4 z-[100] max-w-[calc(100vw-2rem)] sm:max-w-sm">
+        {notice && <div key={notice.id} className="pointer-events-auto flex items-start gap-3 rounded-xl border border-green-300 bg-green-50 p-4 text-sm text-green-900 shadow-lg dark:border-green-800 dark:bg-green-950 dark:text-green-100">
+          <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <p className="min-w-0 flex-1 [overflow-wrap:anywhere]">{notice.message}</p>
+          <button type="button" aria-label="Dismiss notification" onClick={() => setNotice(null)} className="shrink-0 rounded p-1 focus-visible:outline-2"><X className="size-4" aria-hidden="true" /></button>
+        </div>}
+      </div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input
           aria-label="Search menu"
@@ -180,15 +249,15 @@ export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; r
 
       {categoryOpen && (
         <Modal onClose={() => setCategoryOpen(false)} description="Categories group the menu - Pancit, Drinks, Desserts, and so on." title="Add category">
-          <Form action={createMenuCategory}>
+          <MenuSaveForm action={createMenuCategory}>
             <Label className={`${labelClass} mb-4`}>Category name
               <Input autoFocus className={fieldClass} name="name" placeholder="e.g. Snacks" required />
             </Label>
             <div className="flex justify-end gap-2">
               <Button onClick={() => setCategoryOpen(false)} size="sm" type="button" variant="outline">Cancel</Button>
-              <Button size="sm" type="submit">Create category</Button>
+              <SaveButton creating>Create category</SaveButton>
             </div>
-          </Form>
+          </MenuSaveForm>
         </Modal>
       )}
 
@@ -211,13 +280,15 @@ export function MenuCrud({ categories, rows }: { categories: CategoryOption[]; r
       )}
 
     </div>
+    </MenuSaveContext.Provider>
   );
 }
 
 function Modal({ children, description, onClose, title }: { children: React.ReactNode; description: string; onClose: () => void; title: string }) {
+  const busy = useContext(MenuSaveContext)?.busy ?? false;
   return (
-      <Dialog open onOpenChange={open => { if (!open) onClose(); }}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+      <Dialog open onOpenChange={open => { if (!open && !busy) onClose(); }}>
+      <DialogContent showCloseButton={!busy} className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
         <div className="mb-5">
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
           <DialogDescription className="mt-1 text-sm">{description}</DialogDescription>
@@ -262,7 +333,7 @@ function ImageUpload({ current, name = "Menu photo" }: { current?: string | null
 
 function CreateForm({ categories, onCancel }: { categories: CategoryOption[]; onCancel: () => void }) {
   return (
-    <Form action={createMenuEntry}>
+    <MenuSaveForm action={createMenuEntry}>
       <div className="grid gap-4 sm:grid-cols-2">
         <Label className={labelClass}>Category<CategorySelect categories={categories} /></Label>
         <Label className={labelClass}>Item name<Input className={fieldClass} name="itemName" required /></Label>
@@ -278,16 +349,17 @@ function CreateForm({ categories, onCancel }: { categories: CategoryOption[]; on
       </div>
       <div className="mt-6 flex justify-end gap-2">
         <Button onClick={onCancel} size="sm" type="button" variant="outline">Cancel</Button>
-        <Button size="sm" type="submit">Create menu item</Button>
+        <SaveButton creating>Create menu item</SaveButton>
       </div>
-    </Form>
+    </MenuSaveForm>
   );
 }
 
 function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]; onCancel: () => void; row: MenuRow }) {
+  const busy = useContext(MenuSaveContext)?.busy ?? false;
   return (
     <div>
-      <Form action={updateMenuItem}>
+      <MenuSaveForm action={updateMenuItem}>
         <input name="menuItemId" type="hidden" value={row.id} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Label className={labelClass}>Category<CategorySelect categories={categories} defaultValue={row.categoryId} /></Label>
@@ -301,37 +373,37 @@ function EditForms({ categories, onCancel, row }: { categories: CategoryOption[]
           </div>
         </div>
         <div className="mt-5 flex justify-end">
-          <Button size="sm" type="submit">Save item details</Button>
+          <SaveButton>Save item details</SaveButton>
         </div>
-      </Form>
+      </MenuSaveForm>
 
       <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-700">
         <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">Serving sizes &amp; price</h3>
         <div className="space-y-3">
           {row.variants.map((variant) => (
-            <Form action={updateMenuVariant} className="flex flex-wrap items-center gap-3" key={variant.id}>
+            <MenuSaveForm action={updateMenuVariant} className="flex flex-wrap items-center gap-3" key={variant.id}>
               <input name="variantId" type="hidden" value={variant.id} />
               <Input aria-label="Serving name" defaultValue={variant.name} name="variantName" required className="w-36" />
               <Input aria-label="Serving label" defaultValue={variant.servingLabel} name="servingLabel" required className="w-36" />
               <Input aria-label={`Price for ${variant.name} ${variant.servingLabel}`} className="h-8 w-28 text-xs" defaultValue={variant.price} min="0" name="price" required step="0.01" type="number" />
               <Label className="flex items-center gap-1.5 text-xs font-medium"><Input defaultChecked={variant.isActive} name="isActive" type="checkbox" /> On sale</Label>
-              <Button className="h-8 rounded-md px-3 text-xs" size="sm" type="submit">Save</Button>
-            </Form>
+              <SaveButton className="h-8 rounded-md px-3 text-xs">Save</SaveButton>
+            </MenuSaveForm>
           ))}
         </div>
         <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">Prices save on their own button - each serving is a separate record.</p>
-        <Form action={createMenuVariant} className="mt-4 grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
+        <MenuSaveForm action={createMenuVariant} className="mt-4 grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
           <input name="menuItemId" type="hidden" value={row.id} />
           <h4 className="text-sm font-semibold sm:col-span-2">Add serving size</h4>
           <Label className={labelClass}>Serving name<Input name="variantName" required placeholder="Large" /></Label>
           <Label className={labelClass}>Serving label<Input name="servingLabel" required placeholder="Good for 3" /></Label>
           <Label className={labelClass}>Price (PHP)<Input name="price" required type="number" min="0" step="0.01" /></Label>
-          <Button type="submit" className="self-end">Add serving</Button>
-        </Form>
+          <SaveButton className="self-end" creating>Add serving</SaveButton>
+        </MenuSaveForm>
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Button onClick={onCancel} size="sm" type="button" variant="outline">Close</Button>
+        <Button disabled={busy} onClick={onCancel} size="sm" type="button" variant="outline">Close</Button>
       </div>
     </div>
   );
