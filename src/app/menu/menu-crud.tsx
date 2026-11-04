@@ -1,6 +1,7 @@
 "use client";
 
 import { Form } from "@/components/ui/form";
+import Link from "next/link";
 
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
@@ -109,7 +110,7 @@ function SaveButton({ children, className, creating = false }: { children: React
  * `updateMenuVariant` acts on a single variant - so each serving keeps its own
  * tiny form instead of the modal pretending one submit covers every price.
  */
-export function MenuCrud({ categories, rows, servingDeletionAvailable = false }: { categories: CategoryOption[]; rows: MenuRow[]; servingDeletionAvailable?: boolean }) {
+export function MenuCrud({ categories, rows, servingDeletionAvailable = false, bulkAddAvailable = false }: { categories: CategoryOption[]; rows: MenuRow[]; servingDeletionAvailable?: boolean; bulkAddAvailable?: boolean }) {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<{ mode: "create" } | { mode: "edit"; row: MenuRow } | null>(null);
@@ -273,7 +274,10 @@ export function MenuCrud({ categories, rows, servingDeletionAvailable = false }:
           title={editing.mode === "create" ? "Add menu item" : `Edit ${editing.row.name}`}
         >
           {editing.mode === "create" ? (
-            <CreateForm categories={categories} onCancel={() => setEditing(null)} />
+            <>
+              {bulkAddAvailable && <Link href="/menu/bulk-add" className="mb-4 block rounded-xl border p-3 text-sm font-semibold text-primary hover:underline">Bulk Add — temporary menu setup (Photos 1–5)</Link>}
+              <CreateForm categories={categories} onCancel={() => setEditing(null)} />
+            </>
           ) : (
             <EditForms categories={categories} row={editing.row} servingDeletionAvailable={servingDeletionAvailable} onCancel={() => setEditing(null)} />
           )}
