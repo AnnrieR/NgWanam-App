@@ -107,7 +107,10 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
             {itemCount} items across {categories.length} categories · {servingCount} serving sizes with their own prices.
           </p>
         </div>
-        {profile.role === "admin" && <Button render={<Link href="/admin/menu" />} variant="outline">Review menu submissions</Button>}
+        {profile.role === "admin" && <div className="flex flex-wrap gap-2">
+          <Button render={<Link href="/menu/import" />} variant="outline">Import approved menu photo</Button>
+          <Button render={<Link href="/admin/menu" />} variant="outline">Review menu submissions</Button>
+        </div>}
       </header>
 
       {notice && (

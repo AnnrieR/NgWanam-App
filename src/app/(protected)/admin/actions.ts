@@ -7,29 +7,65 @@ import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function deleteAccount(formData: FormData) {
+export type AccountDeleteResult = { ok: true; warning?: string } | { ok: false; error: string; reference?: string };
+
+function accountDeleteFailure(stage: string, error: unknown, message: string): AccountDeleteResult {
+  const details = error && typeof error === "object" ? error as { code?: unknown; status?: unknown } : {};
+  const code = typeof details.code === "string" && /^[a-zA-Z0-9_]{1,60}$/.test(details.code) ? details.code : "unknown";
+  const reference = `account-delete/${stage}/${code}`;
+  // No raw provider message, email, user ID, token or environment values in logs.
+  console.error("[account-delete]", { reference, status: typeof details.status === "number" ? details.status : undefined });
+  return { ok: false, error: message, reference };
+}
+
+export async function deleteAccount(formData: FormData): Promise<AccountDeleteResult> {
   const { user } = await requireRole(["admin"]);
   const profileId = String(formData.get("profileId") ?? "");
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId)) redirect("/admin/users?error=delete-failed");
-  if (profileId === user.id) redirect("/admin/users?error=own-access");
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId) || formData.get("confirmed") !== "yes") return { ok: false, error: "Confirm the account you want to delete." };
+  if (profileId === user.id) return { ok: false, error: "You cannot delete your own administrator account." };
+  let admin: ReturnType<typeof createAdminClient>;
+  try { admin = createAdminClient(); } catch (error) {
+    return accountDeleteFailure("configuration", error, "Account deletion is not configured on the web server. Ask an administrator to check its server-only Supabase configuration.");
+  }
+  let stage = "prepare";
+  try {
   const supabase = await createClient();
   const { error: guardError } = await supabase.rpc("admin_prepare_account_deletion", { p_profile_id: profileId });
-  if (guardError) redirect(`/admin/users?error=${guardError.message.includes("unfinished-work") ? "unfinished-work" : guardError.message.includes("last-admin") ? "last-admin" : "delete-failed"}`);
-  const admin = createAdminClient();
+  if (guardError) return accountDeleteFailure(stage, guardError,
+    guardError.message.includes("unfinished-work") ? "Finish or cancel this account's open orders/assigned deliveries before deleting." :
+      guardError.message.includes("last-admin") ? "The last active administrator cannot be deleted." :
+        guardError.message.includes("account-not-found") ? "This account is already deleted or could not be found. Refresh User Management." :
+          "Deletion could not be authorized. Check the web server logs and account-deletion database migration.");
+  stage = "auth";
   // Supabase soft-delete permanently removes credentials while retaining the
   // UUID required by historical order/payment/delivery foreign keys.
   const { error: authError } = await admin.auth.admin.deleteUser(profileId, true);
-  if (authError) redirect("/admin/users?error=delete-retry");
+  if (authError) return accountDeleteFailure(stage, authError, "Login deletion failed. The account is inactive, but deletion is not complete. Ask an administrator to check the Supabase Auth logs and Google identity soft-deletion migration before retrying.");
+  stage = "profile";
   const { error } = await admin.from("profiles").update({
     full_name: "Deleted account", email: `deleted-${profileId}@removed.invalid`,
     phone: null, address: null, avatar_url: null, birth_date: null, gender: null,
     is_active: false, deleted_at: new Date().toISOString(),
-  }).eq("id", profileId);
-  if (error) redirect("/admin/users?error=delete-retry");
-  const { data: photos } = await admin.storage.from("avatars").list(profileId);
-  if (photos?.length) await admin.storage.from("avatars").remove(photos.map(photo => `${profileId}/${photo.name}`));
+  }).eq("id", profileId).select("id").single();
+  if (error) return accountDeleteFailure(stage, error, "Login access was removed, but profile cleanup failed. The account remains inactive. Check the server logs, then retry Delete to finish.");
+  stage = "avatars";
+  let warning: string | undefined;
+  try {
+  const { data: photos, error: listError } = await admin.storage.from("avatars").list(profileId);
+  if (listError) throw listError;
+  if (photos?.length) {
+    const { error: removeError } = await admin.storage.from("avatars").remove(photos.map(photo => `${profileId}/${photo.name}`));
+    if (removeError) throw removeError;
+  }
+  } catch (error) {
+    accountDeleteFailure(stage, error, "Avatar cleanup could not be confirmed.");
+    warning = "The login and profile were deleted, but avatar cleanup still needs administrator review.";
+  }
   revalidatePath("/admin/users");
-  redirect("/admin/users?updated=deleted");
+  return warning ? { ok: true, warning } : { ok: true };
+  } catch (error) {
+    return accountDeleteFailure(stage, error, "We could not confirm account deletion. Refresh User Management before retrying. Check the web server logs using the reference below.");
+  }
 }
 
 export async function createAccount(_: { error: string }, formData: FormData): Promise<{ error: string }> {
