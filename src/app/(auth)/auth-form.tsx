@@ -54,9 +54,13 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0 pb-0">
-        {googleEnabled && <div className="mb-6 grid gap-3">
+        {googleEnabled && <div className="mb-6 grid gap-5">
           <GoogleAuthForm />
-          <p className="text-center text-xs text-muted-foreground">Or use your email and password. Already registered? Sign in first, then link Google in Account security.</p>
+          <div className="flex min-w-0 items-center gap-3" role="separator" aria-label="Or continue with email">
+            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
+            <span className="shrink-0 text-[10px] font-medium tracking-[0.12em] text-muted-foreground sm:text-[11px]">OR CONTINUE WITH EMAIL</span>
+            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
+          </div>
         </div>}
         <Form action={formAction} className="space-y-6">
           <FieldGroup>
@@ -118,6 +122,8 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
             {isPending ? "Please wait..." : isRegister ? "Create account" : "Sign in"}
           </Button>
         </Form>
+
+        {googleEnabled && <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Already have an email/password account? Sign in with your password first, then link Google in Account security.</p>}
 
         {!isRegister && <p className="mt-4 text-right text-sm"><Link className="font-medium text-primary hover:underline" href="/forgot-password">Forgot password?</Link></p>}
 

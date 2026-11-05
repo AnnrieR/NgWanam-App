@@ -14,6 +14,7 @@
     "test:menu": "node scripts/test-menu-save.mjs",
     "test:serving-delete:db": "node scripts/test-serving-delete-db.mjs",
     "test:google": "node scripts/test-google-auth.mjs",
+    "test:google-ui": "node scripts/test-google-auth-ui.mjs",
     "test:email": "node scripts/test-email-verification.mjs",
     "test:account-delete": "node scripts/test-account-delete.mjs",
     "test:google:db": "node scripts/test-google-auth-db.mjs"

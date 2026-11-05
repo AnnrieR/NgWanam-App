@@ -4,6 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Google's button typography is isolated from Ng Wanam's application fonts.
+   Locally served official Google Fonts subset; see public/google-sans-OFL.txt. */
+@font-face {
+  font-family: "Google Sans Sign In";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/google-sans-medium.ttf") format("truetype");
+}
+
+.google-sign-in-button {
+  font-family: "Google Sans Sign In", Arial, sans-serif;
+}
+
 /* Only the standalone receipt route: omit global chat/navigation from paper. */
 @media print {
   html:has([data-print-receipt]), body:has([data-print-receipt]) {
