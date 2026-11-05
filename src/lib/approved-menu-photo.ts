@@ -3,10 +3,12 @@ export const menuGroups = {
   pancit: "Pancit / noodles / pasta", chicken: "Chicken", pork: "Pork", seafood: "Seafood",
   vegetable: "Vegetable", rice: "Rice", soup: "Soup", appetizer: "Appetizer",
   drinks: "Drinks", dessert: "Dessert", sandwiches: "Sandwiches", others: "Others / extras", family: "Family Sizes / bilao",
+  party: "Party Trays - Pre-order",
 } as const;
 export type MenuGroup = keyof typeof menuGroups;
-export type PhotoMenuItem = { key: string; name: string; group: MenuGroup; bestSeller?: boolean; aliases?: string[]; servings: PhotoServing[] };
+export type PhotoMenuItem = { key: string; name: string; group: MenuGroup; bestSeller?: boolean; aliases?: string[]; description?: string; requiresPreorder?: boolean; servings: PhotoServing[] };
 const serving = (count: number, price: number): PhotoServing => ({ name: `Good for ${count}`, label: `Good for ${count}`, price });
+const rangeServing = (min: number, max: number, price: number): PhotoServing => ({ name: `Good for ${min}–${max}`, label: `Good for ${min}–${max}`, price });
 const regular = (price: number): PhotoServing[] => [{ name: "Regular", label: "Regular serving", price }];
 const smallLarge = (small: number, large?: number): PhotoServing[] => [
   { name: "Good for 1", label: "Good for 1", price: small },
@@ -29,8 +31,8 @@ export const approvedPhotoMenu: PhotoMenuItem[] = [
   { key: "lomi", name: "Chinese Lomi", group: "pancit", servings: smallLarge(110,160) },
   { key: "pork-mami", name: "Pork Mami", group: "pancit", servings: smallLarge(110) },
   { key: "chicken-mami", name: "Chicken Mami", group: "pancit", servings: smallLarge(110) },
-  { key: "spaghetti", name: "Pinoy Style Spaghetti w/ Garlic Bread", group: "pancit", servings: smallLarge(170) },
-  { key: "carbonara", name: "Classic Carbonara w/ Garlic Bread", group: "pancit", servings: smallLarge(215) },
+  { key: "spaghetti", name: "Pinoy Style Spaghetti w/ Garlic Bread", group: "pancit", aliases: ["Pinoy Style Spaghetti"], servings: [...smallLarge(170),rangeServing(6,8,1100)] },
+  { key: "carbonara", name: "Classic Carbonara w/ Garlic Bread", group: "pancit", aliases: ["Classic Carbonara"], servings: [...smallLarge(215),rangeServing(6,8,1300)] },
   { key: "fried-chicken", name: "Fried Chicken", group: "chicken", bestSeller: true, aliases: ["Fried Chicken (Best Seller)"], servings: chicken(225,450) },
   { key: "asado", name: "Chicken Asado", group: "chicken", servings: chicken(225,450) },
   { key: "chop", name: "Chop Chicken", group: "chicken", servings: chicken(275,550) },
@@ -61,24 +63,28 @@ export const approvedPhotoMenu: PhotoMenuItem[] = [
   ...([
     ["pork-chopsuey", "Pork Chopsuey", 200, 800], ["beef-chopsuey", "Beef Chopsuey", 220, 900],
     ["chicken-chopsuey", "Chicken Chopsuey", 220, 900], ["shrimp-chopsuey", "Shrimp Chopsuey", 220, 900],
-  ] as const).map(([key,name,small,large]) => ({ key, name, group: "vegetable" as const, bestSeller: key === "pork-chopsuey", servings: [serving(2,small),serving(8,large)] })),
+  ] as const).map(([key,name,small,large]) => ({ key, name, group: "vegetable" as const, bestSeller: key === "pork-chopsuey",
+    aliases: key === "shrimp-chopsuey" ? [] : [`${name} Family`],
+    servings: [serving(2,small),serving(8,large),...(key === "shrimp-chopsuey" ? [] : [serving(15,key === "pork-chopsuey" ? 1700 : 2200)])],
+  })),
   ...([
     ["pork-ampalaya", "Pork Ampalaya", 200], ["shrimp-ampalaya", "Shrimp w/ Ampalaya", 220],
     ["beef-ampalaya", "Beef w/ Ampalaya", 220], ["shrimp-cauliflower", "Shrimp w/ Cauliflower", 220],
     ["pusit-vegetables", "Pusit w/ Vegetables", 240],
   ] as const).map(([key,name,price]) => ({ key, name, group: "vegetable" as const, servings: [serving(2,price)] })),
   { key: "plain-rice", name: "Plain Rice", group: "rice", servings: [serving(1,35)] },
-  { key: "fried-rice", name: "Fried Rice", group: "rice", bestSeller: true, servings: [serving(1,120),serving(4,250)] },
+  { key: "fried-rice", name: "Fried Rice", group: "rice", bestSeller: true, aliases: ["Fried Rice Tray"], servings: [serving(1,120),serving(4,250),serving(8,800),serving(12,1100)] },
   { key: "shrimp-rice", name: "Shrimp Fried Rice", group: "rice", servings: [serving(2,270)] },
-  { key: "chicken-rice", name: "Chicken Fried Rice", group: "rice", servings: [serving(2,280)] },
-  { key: "seafood-rice", name: "Seafood Fried Rice", group: "rice", servings: [serving(2,300)] },
+  { key: "chicken-rice", name: "Chicken Fried Rice", group: "rice", aliases: ["Chicken Fried Rice Tray"], servings: [serving(2,280),serving(8,1100)] },
+  { key: "seafood-rice", name: "Seafood Fried Rice", group: "rice", aliases: ["Seafood Fried Rice Tray"], servings: [serving(2,300),serving(8,1300)] },
   ...([
     ["hototay", "Hototay Soup"], ["nido", "Nido Soup"], ["chopsuey-soup", "Chopsuey Soup"],
     ["wonton", "Wonton Soup"], ["crab-corn", "Crab and Corn"],
   ] as const).map(([key,name]) => ({ key, name, group: "soup" as const, aliases: key === "crab-corn" ? ["Crab and Corn Soup"] : [], servings: [serving(3,220)] })),
   // Photo 4: all orderable extras; corkage is intentionally excluded (fees, not stock).
-  { key: "lumpia-gulay", name: "Fried Lumpia Gulay", group: "appetizer", servings: [
+  { key: "lumpia-gulay", name: "Fried Lumpia Gulay", group: "appetizer", aliases: ["Fried Lumpia Gulay Bilao", "Fried Lumpia Gulay Bilao 30pcs"], servings: [
     { name: "4 pieces", label: "4 pieces", price: 150 }, { name: "10 pieces", label: "10 pieces", price: 360 }, { name: "15 pieces", label: "15 pieces", price: 540 },
+    { name: "30 pieces", label: "Bilao · 30 pieces", price: 1200 },
   ] },
   { key: "bulaklak", name: "Chicharon Bulaklak", group: "appetizer", servings: regular(240) },
   { key: "tokwat-baboy", name: "Tokwa't Baboy", group: "appetizer", servings: regular(180) },
@@ -109,6 +115,38 @@ export const approvedPhotoMenu: PhotoMenuItem[] = [
     { name: "100 pieces", label: "Good for 25 (100 pieces)", price: 950 }, { name: "200 pieces", label: "Good for 50 (200 pieces)", price: 1850 },
   ] },
   { key: "chicken-bilao", name: "Fried Chicken Bilao", group: "family", servings: [serving(15,1500),serving(30,3000)] },
+  // Photos 6–7: append sizes to their existing recipe above; bundles stay distinct.
+  { key: "top4-bilao", name: "Top 4 Ng-Wanam Bilao", group: "family", description: "Pancit, Lumpia, Fried Rice and Fried Chicken.", servings: [serving(6,1450)] },
+  { key: "family-meal", name: "Family Meal", group: "family", description: "Fried Rice, Lumpia and Fried Chicken.", servings: [serving(8,1050)] },
+  { key: "birthday-meal", name: "Birthday Meal", group: "family", description: "Carbonara, Spaghetti, Lumpia and Garlic Bread. Number of people not specified.", servings: [{ name: "Set", label: "Set", price: 1500 }] },
+  { key: "all-in-chicken", name: "All In Chicken Bilao", group: "family", description: "Chicken Fried Rice, Chicken Lumpia Shanghai and Fried Chicken.", servings: [rangeServing(6,8,1500)] },
+  { key: "party-box", name: "Party Box", group: "family", description: "Bihon Guisado, Spaghetti, Lumpia Shanghai and Chicken Tenders. Number of people not specified.", servings: [{ name: "Box", label: "Box", price: 2000 }] },
+  // Photo 8: Chicken party trays. Explicit pre-order flag, not just a category name.
+  ...([
+    ["chicken-afritada", "Chicken Afritada", 12, 15, 1700], ["chicken-tenders", "Chicken Tenders", 12, 15, 1700],
+    ["chicken-curry", "Chicken Curry", 12, 15, 1700], ["chicken-mushroom", "Chicken Creamy Mushroom", 12, 15, 1700],
+    ["chicken-salpicao", "Chicken Salpicao", 12, 15, 1700], ["chicken-kaldereta", "Chicken Kaldereta", 12, 15, 1900],
+  ] as const).map(([key,name,min,max,price]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [rangeServing(min,max,price)] })),
+  ...([
+    ["chicken-ala-king", "Chicken Ala King"], ["garlic-chicken", "Garlic Buttered Chicken"],
+  ] as const).map(([key,name]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [serving(10,1700)] })),
+  // Photo 9: kilos are a weight, never an invented number of people.
+  { key: "pork-kaldereta", name: "Pork Kaldereta", group: "party", requiresPreorder: true, servings: [{ name: "3 kilos", label: "3 kilos", price: 3000 }] },
+  { key: "breaded-pork", name: "Breaded Pork w/ Mushroom Gravy + Mashed Potato", aliases: ["Breaded Pork with Mushroom Gravy and Mashed Potato", "Breaded Pork"], group: "party", requiresPreorder: true,
+    description: "With Mushroom Gravy and Mashed Potato. Number of people not specified.", servings: [{ name: "Party Tray", label: "Party Tray", price: 1700 }] },
+  ...([
+    ["pork-menudo", "Pork Menudo", 12, 15, 1700], ["pork-salpicao", "Pork Salpicao", 10, 12, 1700],
+    ["pork-mushroom", "Creamy Pork Mushroom", 12, 15, 1700], ["filipino-pork-steak", "Filipino Style Pork Steak", 12, 15, 1700],
+    ["binagoongan", "Pork Binagoongan", 12, 15, 1700], ["lechon-kare-kare", "Lechon Kare-Kare", 10, 12, 2000],
+  ] as const).map(([key,name,min,max,price]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [rangeServing(min,max,price)] })),
+  // Photo 10: seafood/beef party trays, including per-kilo products.
+  ...([
+    ["beef-broccoli", "Beef Broccoli", 2000], ["seafood-sweet-chili", "Seafood Mix Sweet & Chili", 2300],
+    ["fish-ala-king", "Crispy Fish Fillet Ala King Sauce", 1800],
+  ] as const).map(([key,name,price]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [rangeServing(10,12,price)] })),
+  ...([
+    ["buttered-shrimp", "Buttered Shrimp"], ["chili-shrimp", "Sweet & Chili Shrimp"],
+  ] as const).map(([key,name]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [{ name: "Per kilo", label: "Per kilo", price: 1800 }] })),
 ];
 
 export function normalizeMenuName(name: string) {

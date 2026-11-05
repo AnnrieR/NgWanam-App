@@ -1,8 +1,8 @@
-# Temporary Bulk Add — Photos 1–5
+# Temporary Bulk Add — Photos 1–10
 
-The owner supplied five May 2026 menu pages and authorized **15 initial sellable
+The owner supplied ten May 2026 menu pages and authorized **15 initial sellable
 servings per newly created serving**, not per individual lumpia piece. The encoded
-catalog contains **95 item/lahok identities and 135 serving/price entries** after
+catalog contains **121 item/lahok identities and 171 serving/price entries** after
 combining the same noodle/lahok's regular and family sizes. Corkage fees are not
 orderable inventory and are excluded. No image files are uploaded or fabricated.
 
@@ -19,6 +19,20 @@ If Good for 8 exists but Good for 12 does not, only Good for 12 is added. Existi
 prices, stock balances/reservations, images, categories, approval states and IDs
 are never overwritten. Existing inactive/retired servings count as existing and
 are not recreated/reactivated. Inactive/unapproved items aren't silently extended.
+
+Photos 6–10 contribute 35 listed products / 36 serving-price entries. Nine products
+are additional family sizes of existing recipes (rice, chopsuey, pasta and lumpia
+gulay), so their sizes are appended without changing previous serving indexes/IDs.
+Batch 1 remains 95 identities / 135 entries; the cumulative catalog has 26 new
+identities and 36 new sizes. Re-running Bulk Add must not reset batch-1 balances.
+
+Birthday Meal uses **Set**, Party Box uses **Box**, and Breaded Pork uses **Party
+Tray** with no guessed person count. These remain normal active menu offerings
+after setup, subject to stock and existing order rules. Photos 8–10 explicitly
+set `requires_preorder=true` for newly created party-tray items. Existing item
+pre-order settings are not rewritten; a conflict blocks adding missing servings.
+Bundle contents are stored in new-item descriptions. Per-kilo shrimp and 3-kilo
+pork are weight-based sellable servings, not counts of guests or raw-piece stock.
 
 Choose categories for selected **new items** only; existing items keep theirs.
 Missing categories can be added through the normal Add category UI. Review similar

@@ -4,7 +4,7 @@ import { approvedPhotoMenu, normalizeMenuName, type MenuGroup, type PhotoServing
 
 type Client = Pick<SupabaseClient, "from">;
 export type ImportVariant = { id: string; menu_item_id: string; name: string; serving_label: string; price: number; is_active: boolean; inventory: { id: string }[] | { id: string } | null };
-export type ImportItem = { id: string; name: string; category_id: string; description: string | null; is_active: boolean; approval_status: string; menu_variants: ImportVariant[] };
+export type ImportItem = { id: string; name: string; category_id: string; description: string | null; is_active: boolean; approval_status: string; requires_preorder: boolean; menu_variants: ImportVariant[] };
 export type ImportCategory = { id: string; name: string };
 export type ImportOutcome = { name: string; status: "created" | "skipped" | "failed"; message: string };
 export type ImportGroups = Partial<Record<MenuGroup, string>>;
@@ -21,7 +21,7 @@ export async function readImportItems(client: Client): Promise<ImportItem[]> {
   const rows: ImportItem[] = [];
   for (let offset = 0; offset < 10000; offset += 500) {
     const { data, error } = await client.from("menu_items")
-      .select("id,name,category_id,description,is_active,approval_status,menu_variants(id,menu_item_id,name,serving_label,price,is_active,inventory(id))").order("id").range(offset,offset+499);
+      .select("id,name,category_id,description,is_active,approval_status,requires_preorder,menu_variants(id,menu_item_id,name,serving_label,price,is_active,inventory(id))").order("id").range(offset,offset+499);
     if (error || !data) throw new Error("Menu comparison is unavailable. No bulk add can start without a complete comparison.");
     rows.push(...data as ImportItem[]);
     if (data.length < 500) return rows;
@@ -40,13 +40,14 @@ export function importFingerprint(items: ImportItem[]) {
 }
 
 function servingIdentity(name: string, label: string) {
-  const normalize = (text: string) => normalizeMenuName(text).replace(/\b(?:pcs|pc|pieces|piece)\b/g,"pieces");
+  const normalize = (text: string) => normalizeMenuName(text).replace(/\b(?:pcs|pc|pieces|piece)\b/g,"pieces").replace(/\b(?:kilograms?|kilos?|kgs?)\b/g,"kilo");
   const text = `${normalize(name)} ${normalize(label)}`;
   const people = `${label} | ${name}`.match(/\bgood\s+for\s+(\d+)(?:\s*[-–—]\s*(\d+)|\s+to\s+(\d+))?\b/i);
   const pieces = text.match(/\b(\d+)\s*pieces\b/);
+  const weight = text.match(/\b(\d+)\s*kilo\b/)?.[1] ?? (/\bper kilo\b/.test(text) ? "1" : null);
   // Labels are authoritative; a default serving_min=1 is not evidence of size.
   return { people: people ? `${people[1]}:${people[2] ?? people[3] ?? people[1]}` : null,
-    pieces: pieces?.[1] ?? null, name: normalize(name), label: normalize(label) };
+    pieces: pieces?.[1] ?? null, weight, name: normalize(name), label: normalize(label) };
 }
 
 export function sameServing(source: PhotoServing, existing: Pick<ImportVariant,"name" | "serving_label">) {
@@ -54,6 +55,8 @@ export function sameServing(source: PhotoServing, existing: Pick<ImportVariant,"
   const b = servingIdentity(existing.name,existing.serving_label);
   if (a.people && b.people && a.people !== b.people) return false;
   if (a.pieces && b.pieces && a.pieces !== b.pieces) return false;
+  if (a.weight && b.weight && a.weight !== b.weight) return false;
+  if (a.weight && b.weight) return true;
   if (a.pieces && b.pieces) return true;
   if (a.people && b.people) return true;
   return a.name === b.name || a.label === b.label;
@@ -87,13 +90,20 @@ export function planPhotoImport(items: ImportItem[]) {
         found[0].is_active && Number(found[0].price) === serving.price && found[0].name === serving.name && found[0].serving_label === serving.label;
       return { serving, index, found, status: repair ? "repair" as const : found.length ? "existing" as const : "missing" as const };
     });
-    const unknown = matches.flatMap(item => item.menu_variants).filter(variant => !source.servings.some(serving => sameServing(serving,variant)) &&
-      !servingIdentity(variant.name,variant.serving_label).people && !servingIdentity(variant.name,variant.serving_label).pieces);
+    const sourceIsUnspecified = source.servings.every(serving => {
+      const identity = servingIdentity(serving.name,serving.label);
+      return !identity.people && !identity.pieces && !identity.weight;
+    });
+    const unknown = matches.flatMap(item => item.menu_variants).filter(variant => {
+      const identity = servingIdentity(variant.name,variant.serving_label);
+      return !source.servings.some(serving => sameServing(serving,variant)) &&
+        (sourceIsUnspecified || (!identity.people && !identity.pieces && !identity.weight));
+    });
     const missing = servings.filter(row => row.status !== "existing");
     const changedIncomplete = servings.some(row => row.found.some(variant => variant.id === photoImportId(`${source.key}:serving:${row.index}`) &&
       !inventoryExists(variant) && row.status !== "repair"));
     const blocked = changedIncomplete || (!!missing.length && ((matches.length > 0 && !target) || (!!own && !matches.includes(own)) || unknown.length > 0 ||
-      (!!target && !pending && (!target.is_active || target.approval_status !== "approved"))));
+      (!!target && ((!pending && (!target.is_active || target.approval_status !== "approved")) || (!!source.requiresPreorder && !target.requires_preorder)))));
     return { source, matches, target, similar, servings, pending, blocked,
       status: blocked ? "review" as const : !missing.length && !pending ? "skip" as const : target ? "extend" as const : "new" as const };
   });
@@ -116,7 +126,7 @@ export async function importApprovedPhoto(client: Client, groups: ImportGroups, 
   for (const plan of plans) {
     const name = plan.source.name;
     if (!selectedKeys.includes(plan.source.key) || plan.status === "skip" || plan.blocked) {
-      outcomes.push({ name, status: "skipped", message: plan.blocked ? "Review required: ambiguous item/serving, inactive item or unapproved item. Nothing changed." : plan.status === "skip" ? "All listed servings already exist. Prices, inactive/retired servings and stocks preserved." : "Not selected. Nothing changed." });
+      outcomes.push({ name, status: "skipped", message: plan.blocked ? "Review required: ambiguous item/serving, inactive/unapproved item or conflicting pre-order setting. Nothing changed." : plan.status === "skip" ? "All listed servings already exist. Prices, inactive/retired servings and stocks preserved." : "Not selected. Nothing changed." });
       continue;
     }
     try {
@@ -139,7 +149,7 @@ async function importOneItem(client: Client, plan: ReturnType<typeof planPhotoIm
   if (!plan.target) {
     const inserted = await client.from("menu_items").upsert({ id: itemId, category_id: categoryId, name: source.name,
       description: importPendingDescription, image_url: null, is_best_seller: !!source.bestSeller,
-      requires_preorder: false, is_active: false, approval_status: "approved",
+      requires_preorder: !!source.requiresPreorder, is_active: false, approval_status: "approved",
     }, { onConflict: "id", ignoreDuplicates: true });
     if (inserted.error) throw inserted.error;
   }
@@ -170,12 +180,13 @@ async function importOneItem(client: Client, plan: ReturnType<typeof planPhotoIm
     const finalItems = await readImportItems(client);
     const final = planPhotoImport(finalItems).find(row => row.source.key === source.key)!;
     if (final.blocked || final.servings.some(row => row.status !== "existing")) throw new Error("Incomplete item remains inactive.");
-    const published = await client.from("menu_items").update({ is_active: true, description: completedDescription })
+    const description = source.description ? `${completedDescription} ${source.description}` : completedDescription;
+    const published = await client.from("menu_items").update({ is_active: true, description })
       .eq("id",itemId).eq("description",importPendingDescription).eq("is_active",false).select("id").maybeSingle();
     if (published.error) throw published.error;
     if (!published.data) {
       const recheck = await client.from("menu_items").select("description").eq("id",itemId).single();
-      if (recheck.error || recheck.data?.description !== completedDescription) throw new Error("Publication not confirmed.");
+      if (recheck.error || recheck.data?.description !== description) throw new Error("Publication not confirmed.");
     }
   }
 }

@@ -48,14 +48,14 @@ export function PhotoImportForm({ categories, fingerprint, choices }: { categori
       });
     }}>
       <fieldset className="grid gap-4" disabled={busy || !available}>
-        <div className="grid gap-2"><p className="text-sm font-semibold">Missing items and serving sizes — Photos 1–5</p>
+        <div className="grid gap-2"><p className="text-sm font-semibold">Missing items and serving sizes — Photos 1–10</p>
           {choices.map(choice => <label className="flex items-start gap-2 text-sm" key={choice.key}>
             <input type="checkbox" name="itemKey" value={choice.key} disabled={choice.disabled} defaultChecked={!choice.disabled && !choice.similar.length} />
             <span>{choice.name}{choice.similar.length ? ` — similar existing: ${choice.similar.join(', ')}. Review before selecting.` : ""}</span>
           </label>)}
         </div>
         {neededGroups.map(group => <label className="grid gap-2 text-sm" key={group}>Category for new {menuGroups[group]} items
-          <select className="rounded-lg border bg-background p-2" name={`category:${group}`} defaultValue={categories.find(category => category.name.toLowerCase() === (group === 'pancit' ? 'pancit' : group === 'family' ? 'family sizes' : group).toLowerCase())?.id ?? ""}>
+          <select className="rounded-lg border bg-background p-2" name={`category:${group}`} defaultValue={categories.find(category => category.name.toLowerCase() === (group === 'pancit' ? 'pancit' : group === 'family' ? 'family sizes' : group === 'party' ? 'party trays - pre-order' : group).toLowerCase())?.id ?? ""}>
             <option value="">Choose existing category (required only if selected)</option>
             {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
           </select>

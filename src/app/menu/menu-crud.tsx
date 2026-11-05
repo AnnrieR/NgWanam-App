@@ -275,7 +275,7 @@ export function MenuCrud({ categories, rows, servingDeletionAvailable = false, b
         >
           {editing.mode === "create" ? (
             <>
-              {bulkAddAvailable && <Link href="/menu/bulk-add" className="mb-4 block rounded-xl border p-3 text-sm font-semibold text-primary hover:underline">Bulk Add — temporary menu setup (Photos 1–5)</Link>}
+              {bulkAddAvailable && <Link href="/menu/bulk-add" className="mb-4 block rounded-xl border p-3 text-sm font-semibold text-primary hover:underline">Bulk Add — temporary menu setup (Photos 1–10)</Link>}
               <CreateForm categories={categories} onCancel={() => setEditing(null)} />
             </>
           ) : (
