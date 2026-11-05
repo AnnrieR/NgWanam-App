@@ -124,7 +124,7 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
         </p>
       )}
 
-      <MenuCrud categories={categories} rows={rows} servingDeletionAvailable={servingDeletionAvailable} bulkAddAvailable={profile.role === "admin"} />
+      <MenuCrud categories={categories} rows={rows} servingDeletionAvailable={servingDeletionAvailable} />
     </main>
   );
 }
