@@ -6,15 +6,6 @@ import type { RestaurantInfo } from "@/lib/restaurant";
 import { containerClass } from "@/components/landing/common";
 import { cn } from "@/lib/utils";
 
-const footerLinks = [
-  { href: "/#home", label: "Home" },
-  { href: "/#gallery", label: "Gallery" },
-  { href: "/#ourstory", label: "Our Story" },
-  { href: "/#menu", label: "Menu" },
-  { href: "/#reviews", label: "Reviews" },
-  { href: "/#coupons", label: "Coupons" },
-];
-
 function FooterLabel({ children }: { children: React.ReactNode }) {
   return <span className="mb-1 block text-sm font-normal tracking-wide uppercase opacity-60">{children}</span>;
 }
@@ -27,8 +18,8 @@ export async function SiteFooter({ restaurant }: { restaurant: RestaurantInfo | 
   return (
     <footer className="mt-14 bg-[#400D0A] text-white" id="footer">
       <div className={containerClass}>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-14 lg:grid-cols-[auto_12%_25%_1fr]">
-          <div className="order-4 col-span-2 text-center lg:order-1 lg:col-span-1 lg:text-left">
+        <div className="grid grid-cols-1 gap-x-10 gap-y-10 py-14 md:grid-cols-2 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.3fr)]">
+          <div className="order-3 text-center md:col-span-2 lg:order-1 lg:col-span-1 lg:text-left">
             <Link
               className="inline-block w-44 rounded-md bg-[#DE3021] px-4 py-4 text-center transition-transform duration-200 ease-out origin-top hover:-translate-y-0.5"
               href="/#home"
@@ -56,27 +47,14 @@ export async function SiteFooter({ restaurant }: { restaurant: RestaurantInfo | 
             )}
           </div>
 
-          <div className="order-1 lg:order-2">
-            <FooterLabel>Navigation</FooterLabel>
-            <ul className="mt-2">
-              {footerLinks.map((link) => (
-                <li key={link.href}>
-                  <Link className="inline-block py-1 text-base text-white no-underline transition-opacity hover:opacity-70" href={link.href}>
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="order-2 lg:order-3">
+          <div className="order-1 min-w-0 lg:order-2">
             <FooterLabel>Find Us</FooterLabel>
             <div className="mt-2 space-y-3">
               {address ? (
                 <div className="flex items-start gap-2 text-sm">
                   <MapPin className="mt-0.5 size-5 shrink-0 opacity-60" />
                   <a
-                    className="text-white no-underline transition-opacity hover:opacity-70"
+                    className="break-words text-white no-underline transition-opacity hover:opacity-70"
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
                     rel="noreferrer"
                     target="_blank"
@@ -101,7 +79,7 @@ export async function SiteFooter({ restaurant }: { restaurant: RestaurantInfo | 
             </div>
           </div>
 
-          <div className="order-3 col-span-2 lg:order-4 lg:col-span-1">
+          <div className="order-2 min-w-0 lg:order-3">
             <FooterLabel>Open Hours</FooterLabel>
             <div className="mt-2">
               {weekly ? (

@@ -63,3 +63,25 @@ function luminance(hex) {
 }
 assert((luminance("ffffff")+0.05)/(luminance("400d0a")+0.05)>4.5);
 console.log("PASS UI regression: rendered upload icon/text alignment classes, filename truncation, profile button styles, fixed-brown drawer foreground, open/close button colors and white/brown contrast. SSR/mocked UI only; not an actual browser or phone layout test.");
+
+const footer = load("src/components/site-footer.tsx", {
+  "next/link": { default: ({ children, ...props }) => React.createElement("a",props,children) },
+  "lucide-react": { MapPin: icon, Phone: icon },
+  "@/lib/hours": { getWeeklyHours: hours => hours ? [{ day: "Monday", value: hours }] : null },
+  "@/components/landing/common": { containerClass: "container" },
+  "@/lib/utils": { cn },
+});
+for (const restaurant of [null, { name: "Ng Wanam", address: "Batangas City", phone_numbers: ["(043) 723 2560"], facebook_url: "https://facebook.com/example", operating_hours: "6:30 AM - 7:30 PM" }]) {
+  const footerMarkup = renderToStaticMarkup(await footer.SiteFooter({ restaurant }));
+  assert(!footerMarkup.includes("Navigation") && !footerMarkup.includes("Coupons") && !footerMarkup.includes("/#coupons"));
+  for (const text of ["NG WANAM", "Find Us", "Open Hours", "All Rights Reserved"]) assert(footerMarkup.includes(text));
+  assert(footerMarkup.includes("grid-cols-1") && footerMarkup.includes("md:grid-cols-2") && footerMarkup.includes("lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.3fr)]"));
+  if (restaurant) {
+    assert(footerMarkup.includes('href="tel:0437232560"'));
+    assert(footerMarkup.includes("Batangas City") && footerMarkup.includes("Monday") && footerMarkup.includes('aria-label="Facebook"'));
+  } else assert(footerMarkup.includes("Contact us for details.") && footerMarkup.includes("Please call for hours"));
+}
+const landing = fs.readFileSync("src/app/page.tsx","utf8");
+assert(!landing.includes("Coupons") && !landing.includes("landing/coupons"));
+assert(landing.includes("<SiteHeader") && landing.includes("<SiteFooter"));
+console.log("PASS footer/landing: navigation column and coupons section removed; branding, contact links, hours/fallbacks, copyright and main header preserved; responsive grid classes checked. SSR/mocked UI only.");
