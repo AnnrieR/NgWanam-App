@@ -50,7 +50,7 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
           <CardTitle className="mt-2 text-3xl text-foreground">{isRegister ? "Create your account" : "Welcome back"}</CardTitle>
         </div>
         <CardDescription>
-          {isRegister ? "Register to place and track your delivery orders." : "Sign in to continue your order."}
+          {isRegister ? "Register, then verify your email before signing in to place orders." : "Sign in to continue your order."}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0 pb-0">

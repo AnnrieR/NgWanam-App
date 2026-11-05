@@ -30,6 +30,11 @@ const sessionProfile = cache(async () => {
     redirect("/login");
   }
 
+  if (!user.email_confirmed_at) {
+    await supabase.auth.signOut({ scope: "local" });
+    redirect("/login?error=email-unverified");
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, phone, role, is_active, avatar_url")
