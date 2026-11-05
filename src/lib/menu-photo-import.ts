@@ -9,7 +9,9 @@ export type ImportCategory = { id: string; name: string };
 export type ImportOutcome = { name: string; status: "created" | "skipped" | "failed"; message: string };
 export type ImportGroups = Partial<Record<MenuGroup, string>>;
 export const importPendingDescription = "[Import in progress: approved May 2026 menu photo, page 1]";
-const completedDescription = "From the approved May 2026 Ng-Wanam menu.";
+const completedDescription = "From the approved Ng-Wanam menu photos.";
+const catalogNames = new Map(approvedPhotoMenu.map(source => [source.key,new Set([source.name,...source.aliases ?? []].map(normalizeMenuName))]));
+const knownCatalogNames = new Set([...catalogNames.values()].flatMap(names => [...names]));
 
 // Keep the original namespace and serving indexes: page-1 retries remain safe.
 export function photoImportId(key: string) {
@@ -66,23 +68,23 @@ function inventoryExists(variant: ImportVariant) {
   return Array.isArray(variant.inventory) ? variant.inventory.length > 0 : !!variant.inventory;
 }
 
-export function planPhotoImport(items: ImportItem[]) {
-  const knownNames = new Set(approvedPhotoMenu.flatMap(source => [source.name,...source.aliases ?? []]).map(normalizeMenuName));
-  return approvedPhotoMenu.map(source => {
-    const names = new Set([source.name,...source.aliases ?? []].map(normalizeMenuName));
-    const matches = items.filter(row => names.has(normalizeMenuName(row.name)));
+export function planPhotoImport(items: ImportItem[], onlyKey?: string) {
+  const normalizedItems = items.map(row => ({ row, name: normalizeMenuName(row.name) }));
+  return (onlyKey ? approvedPhotoMenu.filter(source => source.key === onlyKey) : approvedPhotoMenu).map(source => {
+    const names = catalogNames.get(source.key)!;
+    const matches = normalizedItems.filter(({ name }) => names.has(name)).map(({ row }) => row);
     const own = items.find(row => row.id === photoImportId(source.key));
     const exact = matches.filter(row => normalizeMenuName(row.name) === normalizeMenuName(source.name));
     const target = matches.length === 1 ? matches[0] : exact.length === 1 ? exact[0] : undefined;
     const pending = target?.description === importPendingDescription && !target.is_active;
-    const similar = items.filter(row => !knownNames.has(normalizeMenuName(row.name)) && (() => {
-      const name = normalizeMenuName(row.name), normalized = normalizeMenuName(source.name);
+    const similar = normalizedItems.filter(({ row, name }) => !knownCatalogNames.has(name) && (() => {
+      const normalized = normalizeMenuName(source.name);
       const base = normalized.replace(/ chicken lahok$/,"");
       const alternative = row.name.includes("/") && row.name.toLowerCase().includes("lahok") &&
         normalized.includes("chicken") === name.includes("chicken") &&
         name.includes(base);
       return alternative || (name.split(" ").length >= 2 && (normalized.startsWith(`${name} `) || name.startsWith(`${normalized} `)));
-    })());
+    })()).map(({ row }) => row);
     const servings = source.servings.map((serving,index) => {
       const found = matches.flatMap(item => item.menu_variants).filter(variant => sameServing(serving,variant));
       const generatedId = photoImportId(`${source.key}:serving:${index}`);
@@ -103,7 +105,8 @@ export function planPhotoImport(items: ImportItem[]) {
     const changedIncomplete = servings.some(row => row.found.some(variant => variant.id === photoImportId(`${source.key}:serving:${row.index}`) &&
       !inventoryExists(variant) && row.status !== "repair"));
     const blocked = changedIncomplete || (!!missing.length && ((matches.length > 0 && !target) || (!!own && !matches.includes(own)) || unknown.length > 0 ||
-      (!!target && ((!pending && (!target.is_active || target.approval_status !== "approved")) || (!!source.requiresPreorder && !target.requires_preorder)))));
+      (!!target && ((!pending && (!target.is_active || target.approval_status !== "approved")) ||
+        (typeof source.requiresPreorder === "boolean" && source.requiresPreorder !== !!target.requires_preorder)))));
     return { source, matches, target, similar, servings, pending, blocked,
       status: blocked ? "review" as const : !missing.length && !pending ? "skip" as const : target ? "extend" as const : "new" as const };
   });
@@ -155,7 +158,7 @@ async function importOneItem(client: Client, plan: ReturnType<typeof planPhotoIm
   }
   // Refresh after each write sequence: parallel importers must see the same item.
   const currentItems = await readImportItems(client);
-  const currentPlan = planPhotoImport(currentItems).find(row => row.source.key === source.key)!;
+  const currentPlan = planPhotoImport(currentItems,source.key)[0];
   const current = currentItems.find(item => item.id === itemId);
   if (!current || currentPlan.blocked || currentPlan.target?.id !== itemId) throw new Error("Item changed. Refresh before retrying.");
   for (const row of currentPlan.servings) {
@@ -178,7 +181,7 @@ async function importOneItem(client: Client, plan: ReturnType<typeof planPhotoIm
   // Only our newly created/incomplete item is ever updated, never an existing item.
   if (current.description === importPendingDescription && !current.is_active) {
     const finalItems = await readImportItems(client);
-    const final = planPhotoImport(finalItems).find(row => row.source.key === source.key)!;
+    const final = planPhotoImport(finalItems,source.key)[0];
     if (final.blocked || final.servings.some(row => row.status !== "existing")) throw new Error("Incomplete item remains inactive.");
     const description = source.description ? `${completedDescription} ${source.description}` : completedDescription;
     const published = await client.from("menu_items").update({ is_active: true, description })

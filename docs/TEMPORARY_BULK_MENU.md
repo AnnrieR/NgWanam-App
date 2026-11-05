@@ -1,8 +1,8 @@
-# Temporary Bulk Add — Photos 1–10
+# Temporary Bulk Add — Photos 1–15
 
-The owner supplied ten May 2026 menu pages and authorized **15 initial sellable
+The owner supplied fifteen January/May 2026 menu pages and authorized **15 initial sellable
 servings per newly created serving**, not per individual lumpia piece. The encoded
-catalog contains **121 item/lahok identities and 171 serving/price entries** after
+catalog contains **142 item/lahok identities and 211 serving/price entries** after
 combining the same noodle/lahok's regular and family sizes. Corkage fees are not
 orderable inventory and are excluded. No image files are uploaded or fabricated.
 
@@ -23,8 +23,20 @@ are not recreated/reactivated. Inactive/unapproved items aren't silently extende
 Photos 6–10 contribute 35 listed products / 36 serving-price entries. Nine products
 are additional family sizes of existing recipes (rice, chopsuey, pasta and lumpia
 gulay), so their sizes are appended without changing previous serving indexes/IDs.
-Batch 1 remains 95 identities / 135 entries; the cumulative catalog has 26 new
-identities and 36 new sizes. Re-running Bulk Add must not reset batch-1 balances.
+Batch 1 remains 95 identities / 135 entries; batch 2 added 26 new identities and
+36 new sizes (121/171 cumulative). Re-running Bulk Add must not reset old balances.
+
+Photos 11–15 add 31 listed products / 40 serving-price entries: 12 Salo-Salo Tray
+products (21 sizes) and SM1–SM8 / PM1–PM5 / RM1–RM6 (19 bento products). Ten tray
+recipes append sizes to earlier items, so this batch adds 21 new identities for
+142/211 cumulative. SM/PM/RM contents are descriptions, never separate products,
+and use **Bento Meal** with no guessed Good for count. Fried Siomai is included only
+as an SM1 component, not a standalone item. New available-anytime trays are not
+pre-order; conflicting existing pre-order settings require review, not an override.
+
+Fried Chicken w/ Vegetables (Large, Good for 12–15, 1600) remains distinct from
+HongKong Style because the owner has not confirmed they are the same recipe. Do
+not merge them, rewrite references or replace descriptions based on assumption.
 
 Birthday Meal uses **Set**, Party Box uses **Box**, and Breaded Pork uses **Party
 Tray** with no guessed person count. These remain normal active menu offerings

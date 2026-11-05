@@ -63,8 +63,8 @@ function database(seed = {}) {
 const fingerprint = async db => service.importFingerprint(await service.readImportItems(db.client));
 const itemCount = photo.approvedPhotoMenu.length;
 const servingCount = photo.approvedPhotoMenu.flatMap(row=>row.servings).length;
-assert.equal(itemCount,121);
-assert.equal(servingCount,171);
+assert.equal(itemCount,142);
+assert.equal(servingCount,211);
 assert.equal(photo.approvedPhotoMenu.find(row=>row.key==="lumpia").servings[0].price,180);
 assert.equal(photo.approvedPhotoMenu.find(row=>row.key==="lumpia").servings.length,1);
 assert.equal(photo.approvedPhotoMenu.find(row=>row.key==="lechon-miki").servings.length,1);
@@ -113,10 +113,81 @@ assert(service.sameServing({name:"Per kilo",label:"Per kilo",price:1800},{name:"
 assert(!service.sameServing({name:"3 kilos",label:"3 kilos",price:3000},{name:"1 kg",serving_label:"1 kilogram"}));
 assert(service.sameServing({name:"Good for 12–15",label:"Good for 12–15",price:1700},{name:"Party tray",serving_label:"Good for 12-15"}));
 assert(!service.sameServing({name:"Good for 12–15",label:"Good for 12–15",price:1700},{name:"Party tray",serving_label:"Good for 12"}));
+// Batch 3: exact tray sizes/prices and full meal contents from Photos 11–15.
+for (const [key,prices] of Object.entries({
+  "ball-n-ball":[800,1600],"lechon-kawali":[1200,2300],"sweet-sour-pork":[1200,2300],
+  "sweet-sour":[1100,1600],"fish-fillet":[1350,2600],"pork-asado":[1300,2600],calamares:[1300,2400],camaron:[1100,2100],
+})) {
+  const sizes=catalog(key).servings.slice(-2);
+  assert.deepEqual(sizes.map(row=>row.name),["Small","Large"]);
+  assert.deepEqual(sizes.map(row=>row.label),["Good for 8–10","Good for 12–15"]);
+  assert.deepEqual(sizes.map(row=>row.price),prices);
+  assert.equal(catalog(key).requiresPreorder,false);
+}
+assert.deepEqual(catalog("plain-rice").servings.map(row=>row.price),[35,600,900]);
+assert.deepEqual(catalog("pata-tim").servings.map(row=>row.price),[870,1800]);
+assert.equal(catalog("tray-chicken-vegetables").servings.length,1);
+assert.equal(catalog("tray-chicken-vegetables").servings[0].price,1600);
+assert.equal(catalog("special-pancit-lechon").servings[0].price,1300);
+assert(![catalog("hongkong").name,...catalog("hongkong").aliases].map(photo.normalizeMenuName).includes(photo.normalizeMenuName(catalog("tray-chicken-vegetables").name)));
+for (const [prefix,prices] of [["sm",[250,250,250,250,285,285,285,320]],["pm",[150,150,175,200,220]],["rm",[169,169,189,199,199,300]]]) {
+  for (const [index,price] of prices.entries()) {
+    const row=catalog(`${prefix}${index+1}`);
+    assert.deepEqual(row.servings,[{name:"Bento Meal",label:"Bento Meal",price}]);
+    assert(row.description && !/good for/i.test(row.description));
+    assert.notEqual(row.requiresPreorder,true);
+  }
+}
+assert(catalog("sm1").description.includes("Fried Siomai"));
+assert(catalog("sm8").description.includes("Lechon Kawali"));
+assert(catalog("pm4").description.includes("8 pieces Lumpia"));
+assert(catalog("pm5").description.includes("1 piece Fried Chicken"));
+assert(catalog("rm6").description.includes("2 pieces Karne Asado"));
+{
+  // Simulate previously saved Photos 1–10; all 171 existing balances/IDs stay intact.
+  const originalSizes={"ball-n-ball":1,"lechon-kawali":1,"sweet-sour-pork":1,"sweet-sour":2,
+    "fish-fillet":1,"pork-asado":1,calamares:1,camaron:1,"pata-tim":1,"plain-rice":1};
+  const seed={menu_items:[],menu_variants:[],inventory:[]};
+  for (const source of photo.approvedPhotoMenu.slice(0,121)) {
+    const itemId=service.photoImportId(source.key);
+    seed.menu_items.push({id:itemId,name:source.name,category_id:groups[source.group],description:"Saved before final batch",is_active:true,approval_status:"approved",requires_preorder:!!source.requiresPreorder});
+    for (const [index,row] of source.servings.slice(0,originalSizes[source.key]??source.servings.length).entries()) {
+      const id=service.photoImportId(`${source.key}:serving:${index}`);
+      seed.menu_variants.push({id,menu_item_id:itemId,name:row.name,serving_label:row.label,price:row.price+2,is_active:true});
+      seed.inventory.push({id:service.photoImportId(`${source.key}:stock:${index}`),menu_variant_id:id,current_stock:7,reserved_stock:1,minimum_stock:2});
+    }
+  }
+  assert.equal(seed.menu_variants.length,171);
+  const db=database(seed);
+  await service.importApprovedPhoto(db.client,groups,await fingerprint(db),allKeys);
+  assert.deepEqual(db.tables.menu_items.slice(0,121),seed.menu_items);
+  assert.deepEqual(db.tables.menu_variants.slice(0,171),seed.menu_variants);
+  assert.deepEqual(db.tables.inventory.slice(0,171),seed.inventory);
+  assert.equal(db.tables.menu_items.length,142);
+  assert.equal(db.tables.menu_variants.length,211);
+  assert.equal(db.tables.inventory.length,211);
+  assert(db.tables.inventory.slice(171).every(row=>row.current_stock===15 && row.reserved_stock===0));
+  for (const source of photo.approvedPhotoMenu.slice(121)) {
+    const saved=db.tables.menu_items.find(row=>row.id===service.photoImportId(source.key));
+    assert(saved.is_active && !saved.requires_preorder);
+    if (source.description) assert(saved.description.includes(source.description));
+  }
+  const before=JSON.stringify(db.tables);
+  await service.importApprovedPhoto(db.client,groups,await fingerprint(db),allKeys);
+  assert.equal(JSON.stringify(db.tables),before);
+}
+{
+  const db=database({menu_items:[{id:"tray-policy-conflict",name:"Special Pancit Lechon",category_id:groups.salo,description:null,is_active:true,approval_status:"approved",requires_preorder:true}]});
+  assert.equal(service.planPhotoImport(await service.readImportItems(db.client)).find(row=>row.source.key==="special-pancit-lechon").status,"review");
+  await service.importApprovedPhoto(db.client,{},await fingerprint(db),["special-pancit-lechon"]);
+  assert.equal(db.control.writes.length,0);
+}
 {
   // Upgrade from an already imported batch 1: append only, keep every old ID/price/balance.
   const oldSizes={spaghetti:1,carbonara:1,"pork-chopsuey":2,"beef-chopsuey":2,"chicken-chopsuey":2,
-    "fried-rice":2,"chicken-rice":1,"seafood-rice":1,"lumpia-gulay":3};
+    "fried-rice":2,"chicken-rice":1,"seafood-rice":1,"lumpia-gulay":3,
+    "ball-n-ball":1,"lechon-kawali":1,"sweet-sour-pork":1,"sweet-sour":2,"fish-fillet":1,"pork-asado":1,
+    calamares:1,camaron:1,"pata-tim":1,"plain-rice":1};
   const seed={menu_items:[],menu_variants:[],inventory:[]};
   for (const source of photo.approvedPhotoMenu.slice(0,95)) {
     const itemId=service.photoImportId(source.key);
@@ -133,9 +204,9 @@ assert(!service.sameServing({name:"Good for 12–15",label:"Good for 12–15",pr
   assert.deepEqual(db.tables.menu_items.slice(0,95),seed.menu_items);
   assert.deepEqual(db.tables.menu_variants.slice(0,135),seed.menu_variants);
   assert.deepEqual(db.tables.inventory.slice(0,135),seed.inventory);
-  assert.equal(db.tables.menu_items.length,121);
-  assert.equal(db.tables.menu_variants.length,171);
-  assert.equal(db.tables.inventory.length,171);
+  assert.equal(db.tables.menu_items.length,itemCount);
+  assert.equal(db.tables.menu_variants.length,servingCount);
+  assert.equal(db.tables.inventory.length,servingCount);
   assert(db.tables.inventory.slice(135).every(row=>row.current_stock===15 && row.reserved_stock===0));
   for (const source of partyRows) {
     const saved=db.tables.menu_items.find(row=>row.id===service.photoImportId(source.key));
@@ -271,4 +342,4 @@ assert(!service.sameServing({name:"Good for 12–15",label:"Good for 12–15",pr
   assert(ui.includes("offset += 5") && ui.includes("response.nextFingerprint") && ui.includes("if (lockRef.current) return"));
   assert(!fs.readFileSync("src/app/menu/page.tsx","utf8").includes("Import approved menu photo"));
 }
-console.log(`PASS Photos 1–10 bulk add: ${itemCount} items / ${servingCount} serving entries, admin guard, selected missing items/servings, normalized/alias comparison, existing inactive/pending items and stock preserved, 15 per new serving, fixed-ID retries/concurrency, staged recovery without stock reset, stale preview/read/category failures, changed-serving protection and similar-name review. Mocked services only; no working or hosted database writes.`);
+console.log(`PASS Photos 1–15 bulk add: ${itemCount} items / ${servingCount} serving entries, admin guard, selected missing items/servings, normalized/alias comparison, existing inactive/pending items and stock preserved, 15 per new serving, fixed-ID retries/concurrency, staged recovery without stock reset, stale preview/read/category failures, changed-serving protection and similar-name review. Mocked services only; no working or hosted database writes.`);

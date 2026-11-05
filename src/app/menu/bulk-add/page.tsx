@@ -21,7 +21,7 @@ export default async function BulkAddMenuPage() {
   const servingCount = approvedPhotoMenu.reduce((sum,item) => sum+item.servings.length,0);
   return <main className="mx-auto grid max-w-6xl gap-6 px-5 py-8">
     <Link href="/menu" className="text-sm underline">Back to Menu</Link>
-    <header><h1 className="text-3xl font-bold">Bulk Add</h1><p className="mt-3 text-sm text-muted-foreground">Temporary menu setup · Photos 1–10 · {approvedPhotoMenu.length} items · {servingCount} serving/price entries. No upload needed. Review first, then confirm.</p></header>
+    <header><h1 className="text-3xl font-bold">Bulk Add</h1><p className="mt-3 text-sm text-muted-foreground">Temporary menu setup · Photos 1–15 · {approvedPhotoMenu.length} items · {servingCount} serving/price entries. No upload needed. Review first, then confirm.</p></header>
     <p className="rounded-xl border p-4 text-sm">Comparison checks item + pork/chicken lahok + serving size. Existing Good for 8 does not prevent adding missing Good for 12. Existing prices, photos, stocks and history are preserved. New serving stock: <strong>15 sellable servings</strong>, not 15 individual pieces/kilos. Birthday Meal, Party Box and Breaded Pork have no invented guest count. New party-tray items require pre-order. Corkage fees are excluded. Ambiguous, inactive, unapproved or pre-order-conflicting items require review; existing settings are never silently changed.</p>
     <div className="overflow-x-auto rounded-xl border"><table className="w-full text-left text-sm">
       <thead><tr className="border-b"><th className="p-3">Item / lahok</th><th className="p-3">Serving and photo price</th><th className="p-3">Live comparison</th></tr></thead>

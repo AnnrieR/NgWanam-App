@@ -4,6 +4,7 @@ export const menuGroups = {
   vegetable: "Vegetable", rice: "Rice", soup: "Soup", appetizer: "Appetizer",
   drinks: "Drinks", dessert: "Dessert", sandwiches: "Sandwiches", others: "Others / extras", family: "Family Sizes / bilao",
   party: "Party Trays - Pre-order",
+  salo: "Salo-Salo Trays", suki: "Suki Meals", pancitMeals: "Pancit Meals", riceMeals: "Plain Rice Meals",
 } as const;
 export type MenuGroup = keyof typeof menuGroups;
 export type PhotoMenuItem = { key: string; name: string; group: MenuGroup; bestSeller?: boolean; aliases?: string[]; description?: string; requiresPreorder?: boolean; servings: PhotoServing[] };
@@ -19,8 +20,8 @@ const chicken = (half: number, whole: number): PhotoServing[] => [
   { name: "Whole", label: "Good for 6", price: whole },
 ];
 
-// Transcribed from the user's approved May 2026 menu photo. No OCR/provider call.
-export const approvedPhotoMenu: PhotoMenuItem[] = [
+// Transcribed from the user's January/May 2026 photos. No OCR/provider call.
+const firstTenPhotos: PhotoMenuItem[] = [
   { key: "miki", name: "Miki Guisado", group: "pancit", bestSeller: true, aliases: ["Miki Guisado (NG-WANAM Best Seller)", "Miki Guisado - Pork Lahok", "Miki Guisado (Pork)"], servings: [...smallLarge(110,170), serving(8,550), serving(12,700)] },
   { key: "canton", name: "Canton", group: "pancit", aliases: ["Canton - Pork Lahok"], servings: [...smallLarge(130,190), serving(8,600), serving(12,800)] },
   { key: "canton-bihon", name: "Canton-Bihon", group: "pancit", aliases: ["Canton-Bihon - Pork Lahok"], servings: [...smallLarge(130,190), serving(8,600), serving(12,800)] },
@@ -147,6 +148,64 @@ export const approvedPhotoMenu: PhotoMenuItem[] = [
   ...([
     ["buttered-shrimp", "Buttered Shrimp"], ["chili-shrimp", "Sweet & Chili Shrimp"],
   ] as const).map(([key,name]) => ({ key, name, group: "party" as const, requiresPreorder: true, servings: [{ name: "Per kilo", label: "Per kilo", price: 1800 }] })),
+];
+
+const traySizes = (small: number, large: number): PhotoServing[] => [
+  { name: "Small", label: "Good for 8–10", price: small },
+  { name: "Large", label: "Good for 12–15", price: large },
+];
+// Append, never reorder: prior imported serving IDs must remain unchanged.
+const finalTrayServings: Record<string, PhotoServing[]> = {
+  "ball-n-ball": traySizes(800,1600), "lechon-kawali": traySizes(1200,2300),
+  "sweet-sour-pork": traySizes(1200,2300), "sweet-sour": traySizes(1100,1600),
+  "fish-fillet": traySizes(1350,2600), "pork-asado": traySizes(1300,2600),
+  calamares: traySizes(1300,2400), camaron: traySizes(1100,2100),
+  "pata-tim": [{ name: "Small", label: "Good for 8–10", price: 1800 }],
+  "plain-rice": [{ name: "Small", label: "Good for 15", price: 600 }, { name: "Large", label: "Good for 25", price: 900 }],
+};
+
+export const approvedPhotoMenu: PhotoMenuItem[] = [
+  ...firstTenPhotos.map(item => ({ ...item,
+    aliases: item.key === "calamares" ? [...item.aliases ?? [],"Calamares"] : item.aliases,
+    ...(finalTrayServings[item.key] ? { requiresPreorder: false, servings: [...item.servings,...finalTrayServings[item.key]] } : {}),
+  })),
+  // Photos 11–12: available anytime. HongKong Style is NOT an assumed alias.
+  { key: "tray-chicken-vegetables", name: "Fried Chicken w/ Vegetables", group: "salo", requiresPreorder: false,
+    servings: [{ name: "Large", label: "Good for 12–15", price: 1600 }] },
+  { key: "special-pancit-lechon", name: "Special Pancit Lechon", group: "salo", requiresPreorder: false, servings: [serving(12,1300)] },
+  // Photo 13: listed components belong to each bento, not separate new products.
+  ...([
+    ["SM1", "Lumpia, Fried Chicken, Pancit, Fried Rice and Fried Siomai.", 250],
+    ["SM2", "Lumpia, Chopsuey, Pancit and Fried Rice.", 250],
+    ["SM3", "Fried Chicken, Chopsuey, Pancit and Fried Rice.", 250],
+    ["SM4", "Halo Prito, Chopsuey, Pancit and Fried Rice.", 250],
+    ["SM5", "Calamares, Chopsuey, Pancit and Fried Rice.", 285],
+    ["SM6", "Pork Asado, Lumpia, Pancit and Fried Rice.", 285],
+    ["SM7", "Pork Asado, Fried Chicken, Pancit and Fried Rice.", 285],
+    ["SM8", "Pork Asado, Lechon Kawali, Pancit and Fried Rice.", 320],
+  ] as const).map(([name,description,price]) => ({ key: name.toLowerCase(), name, description, group: "suki" as const,
+    servings: [{ name: "Bento Meal", label: "Bento Meal", price }],
+  })),
+  // Photo 14: quantities describe meal components, not its number of guests.
+  ...([
+    ["PM1", "Pancit with 4 pieces Lumpia.", 150], ["PM2", "Pancit with Fried Rice.", 150],
+    ["PM3", "Pancit with 1 piece Fried Chicken.", 175],
+    ["PM4", "Pancit, 8 pieces Lumpia and Plain Rice.", 200],
+    ["PM5", "Pancit, 4 pieces Lumpia and 1 piece Fried Chicken.", 220],
+  ] as const).map(([name,description,price]) => ({ key: name.toLowerCase(), name, description, group: "pancitMeals" as const,
+    servings: [{ name: "Bento Meal", label: "Bento Meal", price }],
+  })),
+  // Photo 15: all are Plain Rice Meals, with no invented Good for count.
+  ...([
+    ["RM1", "Plain Rice with 8 pieces Lumpia and Egg.", 169],
+    ["RM2", "Plain Rice with Sweet & Sour Meatball.", 169],
+    ["RM3", "Plain Rice with 2 pieces Breaded Pork and Egg.", 189],
+    ["RM4", "Plain Rice with 4 pieces Lumpia and Chopsuey.", 199],
+    ["RM5", "Plain Rice with Pork Sisig and Fried Egg.", 199],
+    ["RM6", "Ng-Wanam Special: Plain Rice with 1 piece Fried Chicken, 2 pieces Karne Asado, 2 pieces Lechon Kawali and Fried Egg.", 300],
+  ] as const).map(([name,description,price]) => ({ key: name.toLowerCase(), name, description, group: "riceMeals" as const,
+    servings: [{ name: "Bento Meal", label: "Bento Meal", price }],
+  })),
 ];
 
 export function normalizeMenuName(name: string) {

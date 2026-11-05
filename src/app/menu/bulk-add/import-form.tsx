@@ -7,6 +7,11 @@ import { menuGroups, type MenuGroup } from "@/lib/approved-menu-photo";
 import { importMenuPhoto, type PhotoImportResult } from "./actions";
 import type { ImportCategory, ImportOutcome } from "@/lib/menu-photo-import";
 
+const defaultCategoryNames: Partial<Record<MenuGroup,string>> = {
+  family: "Family Sizes", party: "Party Trays - Pre-order", salo: "Salo-Salo Trays",
+  suki: "Suki Meals", pancitMeals: "Pancit Meals", riceMeals: "Plain Rice Meals",
+};
+
 export function PhotoImportForm({ categories, fingerprint, choices }: { categories: ImportCategory[]; fingerprint: string; choices: {
   key: string; name: string; disabled: boolean; similar: string[]; newGroup?: MenuGroup;
 }[] }) {
@@ -48,14 +53,14 @@ export function PhotoImportForm({ categories, fingerprint, choices }: { categori
       });
     }}>
       <fieldset className="grid gap-4" disabled={busy || !available}>
-        <div className="grid gap-2"><p className="text-sm font-semibold">Missing items and serving sizes — Photos 1–10</p>
+        <div className="grid gap-2"><p className="text-sm font-semibold">Missing items and serving sizes — Photos 1–15</p>
           {choices.map(choice => <label className="flex items-start gap-2 text-sm" key={choice.key}>
             <input type="checkbox" name="itemKey" value={choice.key} disabled={choice.disabled} defaultChecked={!choice.disabled && !choice.similar.length} />
             <span>{choice.name}{choice.similar.length ? ` — similar existing: ${choice.similar.join(', ')}. Review before selecting.` : ""}</span>
           </label>)}
         </div>
         {neededGroups.map(group => <label className="grid gap-2 text-sm" key={group}>Category for new {menuGroups[group]} items
-          <select className="rounded-lg border bg-background p-2" name={`category:${group}`} defaultValue={categories.find(category => category.name.toLowerCase() === (group === 'pancit' ? 'pancit' : group === 'family' ? 'family sizes' : group === 'party' ? 'party trays - pre-order' : group).toLowerCase())?.id ?? ""}>
+          <select className="rounded-lg border bg-background p-2" name={`category:${group}`} defaultValue={categories.find(category => category.name.toLowerCase() === (defaultCategoryNames[group] ?? group).toLowerCase())?.id ?? ""}>
             <option value="">Choose existing category (required only if selected)</option>
             {categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}
           </select>
