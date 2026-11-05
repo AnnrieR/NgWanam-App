@@ -55,7 +55,7 @@ from seeded_users u
 where p.id = u.id;
 
 -- Every seeded serving starts available for local thesis demonstrations.
-update public.inventory set current_stock = 25, minimum_stock = 5 where current_stock = 0;
+update public.inventory set current_stock = 15, minimum_stock = 5 where current_stock = 0;
 
 update public.restaurant_settings
 set delivery_fee = 50
