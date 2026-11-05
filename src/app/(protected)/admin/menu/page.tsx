@@ -122,7 +122,8 @@ export default async function MenuApprovalsPage({ searchParams }: MenuApprovalsP
             Staff submissions stay off the customer menu until an admin decides here.
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <Button render={<Link href="/admin/menu/photos" />} variant="outline">Import menu photos</Button>
           <span className="self-center text-sm text-muted-foreground">{approvedCount ?? 0} approved</span>
           <Button render={<Link href="/admin" />} variant="outline">Administration</Button>
         </div>

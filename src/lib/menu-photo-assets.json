@@ -1,0 +1,688 @@
+[
+  {
+    "key": "appetizer-chicharon-bulaklak",
+    "source": "APPETIZER/Chicharon Bulaklak.png",
+    "names": [
+      "Chicharon Bulaklak"
+    ],
+    "bytes": 143786,
+    "sha256": "5333c4725d462a51bd7ce9bc67b6ea775df304fa35b7148e2104c3fe2eb4f7eb",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "appetizer-extra-large-siomai",
+    "source": "APPETIZER/extra large siomai.png",
+    "names": [
+      "Extra Large Siomai"
+    ],
+    "bytes": 134404,
+    "sha256": "31a4aa1283087b7efe37ac003cd9900babfb455a360d32cadeee85e083fcca5d",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "appetizer-fish-chips-final",
+    "source": "APPETIZER/fish & chips final.png",
+    "names": [
+      "Fish & Chips"
+    ],
+    "bytes": 128754,
+    "sha256": "e3c8e9ba19c277060c3bf42b01911e0cf06bb0ae7130c7348b1b92f0b0dbc9df",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "appetizer-lumpia-gulay",
+    "source": "APPETIZER/LUMPIA GULAY.png",
+    "names": [
+      "Fried Lumpia Gulay",
+      "Lumpia Gulay"
+    ],
+    "bytes": 86282,
+    "sha256": "2cfdb5e9eb506613bd049c47ef65f86e6270ae6bb25f37ebfa89b502b3bca1d3",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "appetizer-tokwa-t-baboy",
+    "source": "APPETIZER/Tokwa_t baboy.png",
+    "names": [
+      "Tokwa't Baboy"
+    ],
+    "bytes": 149826,
+    "sha256": "27206984a478131b8716d716f4a03b6aabe1b2962672865e4129e0760b8302e8",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "birthday-meal-birthday-meal",
+    "source": "BIRTHDAY MEAL/BIRTHDAY MEAL_.png",
+    "names": [
+      "Birthday Meal"
+    ],
+    "bytes": 265744,
+    "sha256": "3f11dea4b16c66ee505eaac0b64a0bff0b2d727e36f8096b71524c1f03324ea0",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "chicken-boneless-chicken-w-ham",
+    "source": "CHICKEN/Boneless Chicken w_ ham.png",
+    "names": [
+      "Boneless Chicken w/ Ham"
+    ],
+    "bytes": 92166,
+    "sha256": "c790194ed00933bd59a63c33a438e907a8791cddb46cb1d9a869d7d0c45edc5b",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "chicken-chicken-asado",
+    "source": "CHICKEN/Chicken Asado.png",
+    "names": [
+      "Chicken Asado"
+    ],
+    "bytes": 114196,
+    "sha256": "da289fa5a2d34359f412e0104ad364719d89556649416de6f6c2adeed16d0f17",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "chicken-chop-chicken",
+    "source": "CHICKEN/Chop Chicken.png",
+    "names": [
+      "Chop Chicken"
+    ],
+    "bytes": 121316,
+    "sha256": "e10cb586d52c264ee864c5aca6c2d505a0e2c4ec845ff0f2aa562fad6aad774f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "chicken-fried-chicken-w-vegetables",
+    "source": "CHICKEN/Fried Chicken W_ Vegetables.png",
+    "names": [],
+    "bytes": 123168,
+    "sha256": "dda874bf2a5d6cdfc764073248376f74cdfd39375ef6097635f95cf3d6d36725",
+    "note": "Confirm whether this is HongKong Style or the distinct Salo-Salo recipe first."
+  },
+  {
+    "key": "chicken-fried-chicken",
+    "source": "CHICKEN/Fried Chicken.png",
+    "names": [
+      "Fried Chicken",
+      "Fried Chicken (Best Seller)"
+    ],
+    "bytes": 138832,
+    "sha256": "fd63f00573a85ae5a87829f736a2e74aeec6daebddcc75efbe2627f4acb14336",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "chicken-sweet-sour-chicken",
+    "source": "CHICKEN/Sweet & Sour Chicken.png",
+    "names": [
+      "Sweet & Sour Chicken"
+    ],
+    "bytes": 128238,
+    "sha256": "50103af6d40c6d2a523925cc97ff2d17311fb33a84fea1d1b40c8675304f419f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "dessert-leche-flan",
+    "source": "DESSERT/Leche Flan.png",
+    "names": [
+      "Leche Flan"
+    ],
+    "bytes": 50334,
+    "sha256": "30552f98d8e1716e562850a88267484ecd0276be69700067a0680c84136f2e29",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-all-in-chicken-bilao",
+    "source": "FAMILY SIZE/ALL IN CHICKEN BILAO_.png",
+    "names": [
+      "All In Chicken Bilao"
+    ],
+    "bytes": 283758,
+    "sha256": "86de32849d3b55326c49a627308fa84bc8fabe1a0bcdb30923953d8367cee8fb",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-bihon",
+    "source": "FAMILY SIZE/Bihon.png",
+    "names": [],
+    "bytes": 225006,
+    "sha256": "c4b54cd3f3a1b01175f7d4b400d87dae77cd6fbaae981b9fe8a10c2d44519103",
+    "note": "Serving/lahok identity is unclear or shares a menu item with a different photo. Needs review."
+  },
+  {
+    "key": "family-size-canton-bihon",
+    "source": "FAMILY SIZE/Canton-bihon.png",
+    "names": [
+      "Canton-Bihon Bilao"
+    ],
+    "bytes": 187010,
+    "sha256": "5803fc29b953dcddf064d7868ecf0ad07f9a421789a870160fd883bb719886ea",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-canton",
+    "source": "FAMILY SIZE/Canton_.png",
+    "names": [],
+    "bytes": 218542,
+    "sha256": "7fea9e2d343717ba27c91c79d0b3fdc53b28d76ade18d69b1081ce44242702a7",
+    "note": "Serving/lahok identity is unclear or shares a menu item with a different photo. Needs review."
+  },
+  {
+    "key": "family-size-family-sizes-top-4-bilao",
+    "source": "FAMILY SIZE/FAMILY SIZES TOP 4 BILAO_.png",
+    "names": [
+      "Top 4 Ng-Wanam Bilao"
+    ],
+    "bytes": 309264,
+    "sha256": "6ab94fab76a76b64de03afe6ffb2ccd88f0c17b8daf23de804438726908a606f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-fried-chicken-bilao",
+    "source": "FAMILY SIZE/FRIED CHICKEN BILAO.png",
+    "names": [
+      "Fried Chicken Bilao"
+    ],
+    "bytes": 275802,
+    "sha256": "fa8f7c6b4fa3cd953d7029ab709cdd51092f6175f9c12e33f6eef04b4eaa67a6",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-fried-rice-tray",
+    "source": "FAMILY SIZE/FRIED RICE TRAY.png",
+    "names": [
+      "Fried Rice Tray"
+    ],
+    "bytes": 172330,
+    "sha256": "93f7c02ebffeb7136a76eb83a1b14b3a550495b6331c0136c900c5c277c578c5",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-lumpia-bilao",
+    "source": "FAMILY SIZE/LUMPIA BILAO_.png",
+    "names": [
+      "Lumpia Shanghai Bilao"
+    ],
+    "bytes": 214492,
+    "sha256": "9706314f18be16a1027d50f8ad05e748e2bebb465ed38035860583098ca5428d",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-miki-bihon",
+    "source": "FAMILY SIZE/Miki-bihon.png",
+    "names": [
+      "Miki Bihon Bilao"
+    ],
+    "bytes": 177686,
+    "sha256": "8e82344177267ac3d003bb9db8896fd75b45adabce0cb5fa1a52661cb1818d2b",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "family-size-miki-guisado",
+    "source": "FAMILY SIZE/Miki-guisado.png",
+    "names": [],
+    "bytes": 214696,
+    "sha256": "616e4a8b542a46600a9724b28a944bb5f7238113e5eb5ec8698d2ec2b41a4f37",
+    "note": "Serving/lahok identity is unclear or shares a menu item with a different photo. Needs review."
+  },
+  {
+    "key": "family-size-pancit-tray",
+    "source": "FAMILY SIZE/PANCIT TRAY.png",
+    "names": [],
+    "bytes": 133590,
+    "sha256": "785d7766fafc1a9c8ed3d532c0c42ec20dce98b93eb4b1fccd9dfed53a97100e",
+    "note": "Serving/lahok identity is unclear or shares a menu item with a different photo. Needs review."
+  },
+  {
+    "key": "pancit-bihon-final",
+    "source": "PANCIT/bihon final.png",
+    "names": [
+      "Bihon",
+      "Bihon - Pork Lahok"
+    ],
+    "bytes": 154464,
+    "sha256": "268e5772361049893797173dceb73b4d86768a87962a4630f9a19ae5594298dd",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-canton-final",
+    "source": "PANCIT/canton final.png",
+    "names": [
+      "Canton",
+      "Canton - Pork Lahok"
+    ],
+    "bytes": 104914,
+    "sha256": "a09032dbcf91d0303bbd9d5d9536e51e4404afcbfcec94793fd3f644b73e6bf5",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-lomi-final",
+    "source": "PANCIT/lomi final.png",
+    "names": [
+      "Chinese Lomi",
+      "Lomi"
+    ],
+    "bytes": 141648,
+    "sha256": "5224383e5da01cb1829706ee4b526341efb17759211d6538b4a948863d58cff6",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-miki-guisado-final",
+    "source": "PANCIT/miki guisado final.png",
+    "names": [
+      "Miki Guisado",
+      "Miki Guisado (NG-WANAM Best Seller)",
+      "Miki Guisado - Pork Lahok",
+      "Miki Guisado (Pork)"
+    ],
+    "bytes": 110154,
+    "sha256": "24bebb5d3ac3f81f60d58024bf46747b5ea88a6598adbe7bf2a50e5302cdeb73",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-pork-mami-final",
+    "source": "PANCIT/pork mami final.png",
+    "names": [
+      "Pork Mami"
+    ],
+    "bytes": 146358,
+    "sha256": "9536f3211bf99ea3f31f10a85ac76dbe8cdc36fc6a16a7470a65721f6d1ff091",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-meals-pancit-meal-1-pm-1",
+    "source": "PANCIT MEALS/Pancit Meal 1 PM 1.png",
+    "names": [
+      "PM1",
+      "Pancit Meal 1"
+    ],
+    "bytes": 141506,
+    "sha256": "37563d4c99e50881c4d08613fa4038a79cc35060764f0f545c2c1863daf05d3a",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-meals-pancit-meal-2-pm-2",
+    "source": "PANCIT MEALS/Pancit Meal 2 PM 2.png",
+    "names": [
+      "PM2",
+      "Pancit Meal 2"
+    ],
+    "bytes": 157546,
+    "sha256": "9bf98f5d94196701427e8c6c1288a3c3bce421716acaec035c22acda524a757f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-meals-pancit-meal-3-pm-3",
+    "source": "PANCIT MEALS/Pancit Meal 3 PM 3.png",
+    "names": [
+      "PM3",
+      "Pancit Meal 3"
+    ],
+    "bytes": 140904,
+    "sha256": "766f7504f73b0c2a7289bd5aa9a1ff749225544af0b72c3cb9337c4addd45d25",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-meals-pancit-meal-4-pm",
+    "source": "PANCIT MEALS/Pancit Meal 4 PM_.png",
+    "names": [
+      "PM4",
+      "Pancit Meal 4"
+    ],
+    "bytes": 197346,
+    "sha256": "6756693c9e4594e6bbb5d11a502e7114047bd8152a2b966b3f27cabb896d387e",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pancit-meals-pancit-meal-5-pm-5",
+    "source": "PANCIT MEALS/Pancit Meal 5 PM 5.png",
+    "names": [
+      "PM5",
+      "Pancit Meal 5"
+    ],
+    "bytes": 101514,
+    "sha256": "608414225a4bc9a8014e942cbf5c5ac658e7d6a1319b9dfdf4bbbee94aab9619",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-breaded-pork-w-mashed-potato-party-tray",
+    "source": "PARTY TRAY/breaded pork w mashed potato party tray.png",
+    "names": [
+      "Breaded Pork w/ Mushroom Gravy + Mashed Potato",
+      "Breaded Pork with Mushroom Gravy and Mashed Potato",
+      "Breaded Pork"
+    ],
+    "bytes": 205312,
+    "sha256": "8c113b77d3d4a49b60fb17674b4229f7b6bfe66b92b55a6b2396107267744d12",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-chicken-afritada-party-tray",
+    "source": "PARTY TRAY/chicken afritada party tray.png",
+    "names": [
+      "Chicken Afritada"
+    ],
+    "bytes": 147104,
+    "sha256": "163b3198a444a6f4893103990ecd50a24cfde313c3547981e1095f3ac58cb438",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-chicken-ala-king-party-tray",
+    "source": "PARTY TRAY/chicken ala king party tray.png",
+    "names": [
+      "Chicken Ala King"
+    ],
+    "bytes": 219812,
+    "sha256": "a88e88cf44c5cdb3906e2cd8d74fcbfa95e424f4a185d51fdec7016ae151970a",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-creamy-mushroom-pork-party-tray",
+    "source": "PARTY TRAY/creamy mushroom pork party tray.png",
+    "names": [
+      "Creamy Pork Mushroom"
+    ],
+    "bytes": 217076,
+    "sha256": "392172604c5ecfaa2a6a9e3e5f00a5f923e6a29f70ef0a420b85e2caecfb58f7",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-party-box",
+    "source": "PARTY TRAY/PARTY BOX_.png",
+    "names": [
+      "Party Box"
+    ],
+    "bytes": 242640,
+    "sha256": "e48b042f09d5a1dea0c35d3a55c6ed1a88d529821073562c113e70f1074c966c",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "party-tray-pork-binagoongan-party-tray",
+    "source": "PARTY TRAY/pork binagoongan party tray.png",
+    "names": [
+      "Pork Binagoongan"
+    ],
+    "bytes": 180958,
+    "sha256": "3c84d57ff92ffec4f3de4dece326fef7e3c10425e6f65be0d3470d7bf3351581",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-halo-guisado",
+    "source": "PORK/halo guisado.png",
+    "names": [
+      "Halo Guisado"
+    ],
+    "bytes": 86834,
+    "sha256": "06d096f90170238a3a282903374c9eb8ec446deca845a7ebd1d2793d4c9fced8",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-halo-prito",
+    "source": "PORK/Halo Prito.png",
+    "names": [
+      "Halo Prito"
+    ],
+    "bytes": 100306,
+    "sha256": "66616907e2db1401a41b28d7194dceaaf4f73212cbab6db5f3dc32bcb825480d",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-lechon-kawali",
+    "source": "PORK/Lechon Kawali.png",
+    "names": [
+      "Lechon Kawali"
+    ],
+    "bytes": 139564,
+    "sha256": "192711dd544c8ef52cfce199241aad4630b2fe27f263e6da7df437b966c58900",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-lechon-w-vegetables",
+    "source": "PORK/Lechon w_ Vegetables.png",
+    "names": [
+      "Lechon w/ Vegetables"
+    ],
+    "bytes": 144884,
+    "sha256": "27df139748af7ec7853f23bdac094aec4345ba859cd347bf14761d9aab9a4942",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-lumpia",
+    "source": "PORK/Lumpia.png",
+    "names": [
+      "Lumpia Shanghai",
+      "Lumpia Shanghai 20pcs",
+      "Lumpia Shanghai (20 pcs)"
+    ],
+    "bytes": 89728,
+    "sha256": "0086d76126838f9617e393e707ef97395a3dcc7fcf0f64fabd552179937501d3",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-pata-tim-special",
+    "source": "PORK/Pata Tim Special.png",
+    "names": [
+      "Pata Tim Special"
+    ],
+    "bytes": 193882,
+    "sha256": "7da0d98c45613177a333af18e568d294a07571d0db7c0c43455742c6f9d0af1e",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-pork-liver-w-greenpeas",
+    "source": "PORK/Pork liver w_ Greenpeas.png",
+    "names": [
+      "Pork Liver w/ Greenpeas"
+    ],
+    "bytes": 128166,
+    "sha256": "9c7f76c48911a5cd5267a3f00e02769dd3d840bdf530605e87c675a56484a5f4",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-pork-sisig",
+    "source": "PORK/Pork Sisig.png",
+    "names": [
+      "Pork Sisig"
+    ],
+    "bytes": 162896,
+    "sha256": "4577f0abcba3ca4d0614d22ae6b223df4dd8cf8caa30b403eb688abcdf26470b",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "pork-sweet-sour-pork",
+    "source": "PORK/Sweet & Sour Pork.png",
+    "names": [
+      "Sweet & Sour Pork"
+    ],
+    "bytes": 127378,
+    "sha256": "69437948cc0416d07aad7f6fae6de311e60e520d4d9472eac14599f3dc6f442f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "rice-fried-rice",
+    "source": "RICE/Fried rice.png",
+    "names": [
+      "Fried Rice"
+    ],
+    "bytes": 157924,
+    "sha256": "e120a0a7d0c1634156ac2b8c2ab087821fba8140957f603d4f805eb9c12d4f9a",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "rice-meals-rm1-final",
+    "source": "RICE MEALS/rm1 final.png",
+    "names": [
+      "RM1",
+      "Rice Meal 1"
+    ],
+    "bytes": 72540,
+    "sha256": "1f2e65771e2aaa6adb761bafba6cf0dfcf06b4380da308a2561710473435428f",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "rice-meals-rm2",
+    "source": "RICE MEALS/rm2.png",
+    "names": [
+      "RM2",
+      "Rice Meal 2"
+    ],
+    "bytes": 87768,
+    "sha256": "691c902f1a237b503e4378b28baf9bad3b4651bfbbfcbca0de66264d411fe6d8",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "rice-meals-rm5-final",
+    "source": "RICE MEALS/rm5 final.png",
+    "names": [
+      "RM5",
+      "Rice Meal 5"
+    ],
+    "bytes": 95574,
+    "sha256": "fd2ef2e1e0f655784d087fb8bbfea172209437ea96a377280501069e128da51c",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "salo-salo-tray-ball-n-ball",
+    "source": "SALO-SALO TRAY/Ball n Ball.png",
+    "names": [
+      "Ball n Ball"
+    ],
+    "bytes": 282432,
+    "sha256": "031fb887b083e97928472e75a058691499113d863ef0e4bfd072a254b250a4d4",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-chicken-sandwich",
+    "source": "SANDWICHES/chicken sandwich.png",
+    "names": [
+      "Chicken Sandwich"
+    ],
+    "bytes": 79568,
+    "sha256": "88f81e6a275088d0fc7c50d02dbd7c2481cd58c166516d7b7548a27d9cae8005",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-crispy-chicken-sandwich",
+    "source": "SANDWICHES/crispy chicken sandwich.png",
+    "names": [
+      "Crispy Chicken Sandwich"
+    ],
+    "bytes": 140338,
+    "sha256": "e2a0bcb14b425a7cc59338705a19e06431b92f1014a44891585141fe4b4ca882",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-deluxe-sandwich-combo",
+    "source": "SANDWICHES/deluxe sandwich combo.png",
+    "names": [
+      "Deluxe Sandwich Combo"
+    ],
+    "bytes": 90528,
+    "sha256": "95af5f57158565ae96f8cfa26c0e1028ad114990a9bedf4ca575c2f0bb96e7bf",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-ham-cheese-sandwich",
+    "source": "SANDWICHES/ham & cheese sandwich.png",
+    "names": [
+      "Ham & Cheese Sandwich"
+    ],
+    "bytes": 70124,
+    "sha256": "9f068b2bab86d297e943c71b5bd37316fbbd5c0d90b64eb668e6d82683471b99",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-ham-egg-sandwich",
+    "source": "SANDWICHES/ham & egg sandwich.png",
+    "names": [
+      "Ham & Egg Sandwich"
+    ],
+    "bytes": 85170,
+    "sha256": "2da7b2cce4e198ce8fea60e393ad9ab2011c73009f6faacecd11b57f75858c53",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "sandwiches-hotdog-overload-sandwich",
+    "source": "SANDWICHES/hotdog overload sandwich.png",
+    "names": [
+      "Hotdog Overload Sandwich"
+    ],
+    "bytes": 136470,
+    "sha256": "3844f1443bc249665b5e7396ea17ef4e5173aa3b608a437970baa503a2c936c0",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "seafood-fried-shrimp-w-sweet-sour-sauce",
+    "source": "SEAFOOD/Fried Shrimp w_ Sweet & Sour Sauce.png",
+    "names": [
+      "Fried Shrimp w/ Sweet & Sour Sauce"
+    ],
+    "bytes": 158574,
+    "sha256": "517d59bcf6e92930336bf4538da50689c2dedfea74b3b6dfb4ec5c1e14b1e344",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "soup-crab-corn-soup",
+    "source": "SOUP/crab & corn soup.png",
+    "names": [
+      "Crab and Corn",
+      "Crab and Corn Soup",
+      "Crab & Corn Soup"
+    ],
+    "bytes": 93874,
+    "sha256": "3e1a636f49733d609b9abbfffdea0043c893cef07707157d3a1a13393b6172d0",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "soup-wonton-soup",
+    "source": "SOUP/wonton soup.png",
+    "names": [
+      "Wonton Soup"
+    ],
+    "bytes": 99934,
+    "sha256": "63a52919cfe67a474532f4211e88fa244c0d491898ad56d66c854b26ca8d7b33",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "vegetable-beef-ampalaya-final",
+    "source": "VEGETABLE/beef ampalaya final.png",
+    "names": [
+      "Beef w/ Ampalaya",
+      "Beef Ampalaya"
+    ],
+    "bytes": 123878,
+    "sha256": "86a06ce203cba1b53c3c9fc6e8403b17952f3106b3233dd4d49a28a7e23eab68",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "vegetable-pork-ampalaya-final",
+    "source": "VEGETABLE/pork ampalaya final.png",
+    "names": [
+      "Pork Ampalaya"
+    ],
+    "bytes": 154922,
+    "sha256": "77559a592ec5a33b9f4581cf1509fa32905ca31c2aeaf03092d6fb9ffa69757d",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "vegetable-pork-chopseuy-final",
+    "source": "VEGETABLE/pork chopseuy final.png",
+    "names": [
+      "Pork Chopsuey",
+      "Pork Chopseuy",
+      "Pork Chopsuey Family"
+    ],
+    "bytes": 116852,
+    "sha256": "3dfbb222f41fecffd394eb414e6114a07d0d391dcf87c848fea252f914da72b2",
+    "note": "Exact recipe names only; existing photos are preserved."
+  },
+  {
+    "key": "vegetable-shrimp-chopseuy-final",
+    "source": "VEGETABLE/shrimp chopseuy final.png",
+    "names": [
+      "Shrimp Chopsuey",
+      "Shrimp Chopseuy"
+    ],
+    "bytes": 143088,
+    "sha256": "884549ea1db4659f699a00d7a757de3af83fc6aad5a62c9ad030cbcc51375d03",
+    "note": "Exact recipe names only; existing photos are preserved."
+  }
+]

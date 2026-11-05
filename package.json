@@ -12,6 +12,7 @@
     "test:chatbot": "node scripts/test-chatbot-ai.mjs",
     "test:gcash": "node scripts/test-gcash-settings.mjs",
     "test:menu": "node scripts/test-menu-save.mjs",
+    "test:menu-photos": "node scripts/test-menu-photo-import.mjs",
     "test:serving-delete:db": "node scripts/test-serving-delete-db.mjs",
     "test:google": "node scripts/test-google-auth.mjs",
     "test:google-ui": "node scripts/test-google-auth-ui.mjs",
