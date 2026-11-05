@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { validImageSize, IMAGE_UPLOAD_HINT } from "@/lib/image-upload";
+import { cn } from "@/lib/utils";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 function RemovePhotoCheckbox(props: React.InputHTMLAttributes<HTMLInputElement>) {
@@ -36,7 +37,10 @@ function FileInput({ className, onChange, ...props }: React.InputHTMLAttributes<
       } else { setFilename(file?.name ?? ""); setError(""); }
       onChange?.(event);
     }} />
-    <Button type="button" variant="outline" className={className} disabled={props.disabled} aria-label={props["aria-label"] ?? "Choose image"} aria-describedby={error ? errorId : props["aria-describedby"]} onClick={() => ref.current?.click()}><Upload className="size-4" />{filename || "Choose image"}</Button>
+    <Button type="button" variant="outline" className={cn("w-full min-w-0 justify-start gap-2 text-left", className)} disabled={props.disabled} aria-label={props["aria-label"] ?? "Choose image"} aria-describedby={error ? errorId : props["aria-describedby"]} onClick={() => ref.current?.click()}>
+      <Upload className="size-4 shrink-0" />
+      <span className="min-w-0 flex-1 truncate" title={filename || undefined}>{filename || "Choose image"}</span>
+    </Button>
     {error && <span id={errorId} role="alert" className="text-xs text-destructive">{error}</span>}
   </span>;
 }

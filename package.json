@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:images": "node scripts/test-image-validation.mjs",
+    "test:ui": "node scripts/test-ui-layout.mjs",
     "test:chatbot": "node scripts/test-chatbot-ai.mjs",
     "test:gcash": "node scripts/test-gcash-settings.mjs",
     "test:menu": "node scripts/test-menu-save.mjs",

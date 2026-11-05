@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 /** Bright icon: this bar keeps the brand brown background in both themes. */
 const navToggleClass =
-  "text-white/85 hover:bg-white/10 hover:text-white dark:text-white/85 dark:hover:bg-white/10";
+  "text-white hover:bg-white/10 hover:text-white dark:text-white dark:hover:bg-white/10 dark:hover:text-white";
 
 const navLinks = [
   { href: "/#home", label: "Home" },
@@ -52,7 +52,7 @@ export function SiteNav({ restaurant }: { restaurant: RestaurantInfo | null }) {
           <div className="flex items-center gap-1 lg:hidden">
             <Button variant="ghost"
               aria-label="Open menu"
-              className="p-2 transition-opacity hover:opacity-70"
+              className={cn("p-2 transition-opacity hover:opacity-70", navToggleClass)}
               type="button"
               onClick={() => setOpen(true)}
             >
@@ -119,7 +119,7 @@ export function SiteNav({ restaurant }: { restaurant: RestaurantInfo | null }) {
         aria-label="Site menu"
         aria-modal={open}
         className={cn(
-          "fixed left-0 top-0 z-50 flex h-full w-[70%] max-w-[23rem] flex-col bg-[#400D0A] px-6 pt-6 pb-8 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none lg:hidden",
+          "fixed left-0 top-0 z-50 flex h-full w-[70%] max-w-[23rem] flex-col bg-[#400D0A] text-white px-6 pt-6 pb-8 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none lg:hidden",
           open ? "translate-x-0" : "-translate-x-full",
         )}
         inert={!open}
@@ -129,7 +129,7 @@ export function SiteNav({ restaurant }: { restaurant: RestaurantInfo | null }) {
           <Link aria-label="Ng Wanam Food House - home" className="flex shrink-0 items-center" href="/" onClick={() => setOpen(false)}>
             <Image alt="Ng Wanam Food House" className="h-9 w-auto" height={48} src="/menu-images/ng wanam logo.png" width={130} />
           </Link>
-          <Button variant="ghost" aria-label="Close menu" className="p-2 transition-opacity hover:opacity-70" type="button" onClick={() => setOpen(false)}>
+          <Button variant="ghost" aria-label="Close menu" className={cn("p-2 transition-opacity hover:opacity-70", navToggleClass)} type="button" onClick={() => setOpen(false)}>
             <X className="size-7" />
           </Button>
         </div>

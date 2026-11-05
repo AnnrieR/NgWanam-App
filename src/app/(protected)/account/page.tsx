@@ -94,7 +94,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                 </FormSelect>
               </Label>
               <Label className="grid gap-1 text-xs font-medium text-slate-700 sm:col-span-2 dark:text-slate-300">Profile photo
-                <Input accept="image/png,image/jpeg,image/webp,image/gif,image/avif" className="block w-full cursor-pointer rounded-3xl border border-transparent bg-input/50 px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-background file:px-3 file:py-1 file:text-sm file:font-medium focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30" name="avatar" type="file" />
+                <Input accept="image/png,image/jpeg,image/webp,image/gif,image/avif" className="w-full cursor-pointer rounded-3xl border border-transparent bg-input/50 text-sm" name="avatar" type="file" />
                 <small className="mt-1 block font-normal text-slate-500 dark:text-slate-400">PNG, JPG, WEBP, GIF, or AVIF smaller than 1 MB.</small>
               </Label>
               {avatarUrl && <Label className="flex items-center gap-2 text-xs font-medium text-slate-700 sm:col-span-2 dark:text-slate-300"><Input className="size-4 accent-red-600" defaultChecked={false} name="removeAvatar" type="checkbox" />Remove current photo</Label>}
