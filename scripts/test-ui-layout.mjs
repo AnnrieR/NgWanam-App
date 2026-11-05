@@ -73,15 +73,18 @@ const footer = load("src/components/site-footer.tsx", {
 });
 for (const restaurant of [null, { name: "Ng Wanam", address: "Batangas City", phone_numbers: ["(043) 723 2560"], facebook_url: "https://facebook.com/example", operating_hours: "6:30 AM - 7:30 PM" }]) {
   const footerMarkup = renderToStaticMarkup(await footer.SiteFooter({ restaurant }));
-  assert(!footerMarkup.includes("Navigation") && !footerMarkup.includes("Coupons") && !footerMarkup.includes("/#coupons"));
+  assert(footerMarkup.includes("Navigation"));
+  for (const section of ["home", "gallery", "ourstory", "menu"]) assert(footerMarkup.includes(`href="/#${section}"`));
+  assert(!footerMarkup.includes("Reviews") && !footerMarkup.includes("/#reviews"));
+  assert(!footerMarkup.includes("Coupons") && !footerMarkup.includes("/#coupons"));
   for (const text of ["NG WANAM", "Find Us", "Open Hours", "All Rights Reserved"]) assert(footerMarkup.includes(text));
-  assert(footerMarkup.includes("grid-cols-1") && footerMarkup.includes("md:grid-cols-2") && footerMarkup.includes("lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1.3fr)]"));
+  assert(footerMarkup.includes("grid-cols-2") && footerMarkup.includes("lg:grid-cols-[auto_12%_25%_1fr]"));
   if (restaurant) {
     assert(footerMarkup.includes('href="tel:0437232560"'));
     assert(footerMarkup.includes("Batangas City") && footerMarkup.includes("Monday") && footerMarkup.includes('aria-label="Facebook"'));
   } else assert(footerMarkup.includes("Contact us for details.") && footerMarkup.includes("Please call for hours"));
 }
 const landing = fs.readFileSync("src/app/page.tsx","utf8");
-assert(!landing.includes("Coupons") && !landing.includes("landing/coupons"));
+assert(landing.includes("<Coupons") && landing.includes("landing/coupons"));
 assert(landing.includes("<SiteHeader") && landing.includes("<SiteFooter"));
-console.log("PASS footer/landing: navigation column and coupons section removed; branding, contact links, hours/fallbacks, copyright and main header preserved; responsive grid classes checked. SSR/mocked UI only.");
+console.log("PASS footer/landing: navigation restored with Home/Gallery/Our Story/Menu only; Reviews/Coupons links absent; offers cards restored; branding, contact links, hours/fallbacks, copyright and main header preserved. SSR/mocked UI only.");

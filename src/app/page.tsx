@@ -8,6 +8,7 @@ import { MenuSection } from "@/components/landing/menu-section";
 import type { MenuTabGroup } from "@/components/landing/menu-tabs";
 import { OrderOnline, type OrderSample } from "@/components/landing/order-online";
 import { OurStory } from "@/components/landing/our-story";
+import { Coupons } from "@/components/landing/coupons";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,7 @@ export default async function Home() {
         <OurStory />
         <MenuSection groups={groups} />
         <OrderOnline samples={samples} />
+        <Coupons hours={restaurant?.operating_hours} areas={restaurant?.delivery_service_areas} />
       </main>
       <SiteFooter restaurant={restaurant} />
     </>
