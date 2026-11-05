@@ -14,7 +14,7 @@ const startGoogle = () => {};
 const signIn = () => {};
 const signUp = () => {};
 const hooks = { ...React, useActionState: action => {
-  assert([startGoogle,signIn,signUp].includes(action));
+  assert.equal(typeof action,"function");
   if (action === startGoogle) googleHookCalls++;
   return [action === startGoogle ? { error } : {}, "/test-server-action", action === startGoogle && pending];
 } };
@@ -65,7 +65,8 @@ assert(linking.includes("Verify password and link Google"));
 const wrapper = tag => function Wrapper(props) { return React.createElement(tag,props); };
 const auth = load("src/app/(auth)/auth-form.tsx", {
   "@/components/ui/form": { Form: wrapper("form") }, "next/link": { default: wrapper("a") }, "next/image": { default: image },
-  "lucide-react": { Check: icon, Eye: icon, EyeOff: icon, X: icon }, "@/components/ui/button": { Button: button },
+  "lucide-react": { Check: icon, Eye: icon, EyeOff: icon, MailCheck: icon, X: icon }, "@/components/ui/button": { Button: button },
+  "@/components/ui/alert-dialog": { AlertDialog: () => null, AlertDialogContent: wrapper("div"), AlertDialogDescription: wrapper("p"), AlertDialogTitle: wrapper("h2") },
   "@/components/ui/card": Object.fromEntries(["Card","CardContent","CardDescription","CardHeader","CardTitle"].map(name=>[name,wrapper("div")])),
   "@/components/ui/field": Object.fromEntries(["Field","FieldError","FieldGroup","FieldLabel"].map(name=>[name,wrapper("div")])),
   "@/components/ui/form-input": { Input: input }, "@/lib/utils": { cn }, "@/components/google-auth-form": google,
@@ -73,14 +74,18 @@ const auth = load("src/app/(auth)/auth-form.tsx", {
 });
 for (const mode of ["login","register"]) {
   const markup = renderToStaticMarkup(React.createElement(auth.AuthForm,{ mode, googleEnabled: true }));
-  assert(markup.includes("OR CONTINUE WITH EMAIL"));
-  assert(markup.indexOf("Continue with Google") < markup.indexOf("OR CONTINUE WITH EMAIL"));
-  assert(markup.indexOf("OR CONTINUE WITH EMAIL") < markup.indexOf('id="email"'));
+  assert(markup.includes("OR CONTINUE WITH"));
+  assert(markup.indexOf('id="email"') < markup.indexOf("OR CONTINUE WITH"));
+  assert(markup.indexOf("OR CONTINUE WITH") < markup.indexOf("Continue with Google"));
+  if (mode === "login") {
+    assert(markup.indexOf("Forgot password?") < markup.indexOf("OR CONTINUE WITH"));
+    assert(markup.indexOf("Continue with Google") < markup.indexOf("New to Ng Wanam?"));
+  }
   assert.equal((markup.match(/<form\b/g) ?? []).length,2); // No nested OAuth/password forms.
   assert(markup.includes("Account security"));
 }
 const disabled = renderToStaticMarkup(React.createElement(auth.AuthForm,{ mode: "login", googleEnabled: false }));
-assert(!disabled.includes("OR CONTINUE WITH EMAIL") && !disabled.includes("google-g.png"));
+assert(!disabled.includes("OR CONTINUE WITH") && !disabled.includes("google-g.png"));
 assert.equal(createHash("sha256").update(fs.readFileSync("public/google-g.png")).digest("hex"),"d1ce9c2af0b10a7333abc99bc706f9a6a199e5b65bf3e3009624f076b8638e6a");
 assert(fs.statSync("public/google-sans-medium.ttf").size < 20000);
 assert(fs.readFileSync("public/google-sans-OFL.txt","utf8").includes("SIL OPEN FONT LICENSE"));

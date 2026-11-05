@@ -16,6 +16,7 @@
     "test:google": "node scripts/test-google-auth.mjs",
     "test:google-ui": "node scripts/test-google-auth-ui.mjs",
     "test:email": "node scripts/test-email-verification.mjs",
+    "test:registration-ui": "node scripts/test-registration-ui.mjs",
     "test:account-delete": "node scripts/test-account-delete.mjs",
     "test:google:db": "node scripts/test-google-auth-db.mjs"
   },

@@ -4,7 +4,7 @@ import { Form } from "@/components/ui/form";
 
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Eye, EyeOff, X } from "lucide-react";
+import { Check, Eye, EyeOff, MailCheck, X } from "lucide-react";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/form-input";
 import { cn } from "@/lib/utils";
 import { GoogleAuthForm } from "@/components/google-auth-form";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import { signIn, signUp, type AuthFormState } from "./actions";
 
@@ -27,10 +28,26 @@ const authInputClass = "block h-11 appearance-none rounded-xl border-input bg-ba
 
 export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps) {
   const action = mode === "login" ? signIn : signUp;
-  const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(action, initialState);
   const isRegister = mode === "register";
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordResetKey, setPasswordResetKey] = useState(0);
+  const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
+  const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(async (previous, formData) => {
+    const result = await action(previous, formData);
+    if (isRegister && result.message && !result.error) {
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      // Remount both password widgets so any revealed values become masked again.
+      setPasswordResetKey(current => current + 1);
+      setVerificationMessage(result.message);
+    }
+    return result;
+  }, initialState);
 
   const rules = [
     { label: "At least 8 characters", ok: password.length >= 8 },
@@ -54,29 +71,22 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
         </CardDescription>
       </CardHeader>
       <CardContent className="px-0 pb-0">
-        {googleEnabled && <div className="mb-6 grid gap-5">
-          <GoogleAuthForm />
-          <div className="flex min-w-0 items-center gap-3" role="separator" aria-label="Or continue with email">
-            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
-            <span className="shrink-0 text-[10px] font-medium tracking-[0.12em] text-muted-foreground sm:text-[11px]">OR CONTINUE WITH EMAIL</span>
-            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
-          </div>
-        </div>}
         <Form action={formAction} className="space-y-6">
           <FieldGroup>
             {isRegister && (
               <Field>
                 <FieldLabel htmlFor="fullName">Full name</FieldLabel>
-                <Input className={authInputClass} id="fullName" name="fullName" autoComplete="name" required />
+                <Input className={authInputClass} id="fullName" name="fullName" autoComplete="name" required value={fullName} onChange={event => setFullName(event.target.value)} />
               </Field>
             )}
             <Field>
               <FieldLabel htmlFor="email">Email address</FieldLabel>
-              <Input className={authInputClass} id="email" name="email" type="email" autoComplete="email" required />
+              <Input className={authInputClass} id="email" name="email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} />
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
               <PasswordInput
+                key={`password-${passwordResetKey}`}
                 autoComplete={isRegister ? "new-password" : "current-password"}
                 id="password"
                 name="password"
@@ -99,6 +109,7 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
               <Field>
                 <FieldLabel htmlFor="confirmPassword">Confirm password</FieldLabel>
                 <PasswordInput
+                  key={`confirm-password-${passwordResetKey}`}
                   autoComplete="new-password"
                   id="confirmPassword"
                   name="confirmPassword"
@@ -116,16 +127,26 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
           </FieldGroup>
 
           {(state.error || notice) && <FieldError>{state.error || notice}</FieldError>}
-          {state.message && <p className="text-sm text-green-700 dark:text-green-400">{state.message}</p>}
+          {!isRegister && state.message && <p className="text-sm text-green-700 dark:text-green-400">{state.message}</p>}
 
           <Button className="h-11 w-full rounded-xl bg-[#bd2507] text-white hover:bg-[#a71c04] dark:bg-[#bd2507] dark:text-white dark:hover:bg-[#a71c04]" size="lg" type="submit" disabled={isPending}>
             {isPending ? "Please wait..." : isRegister ? "Create account" : "Sign in"}
           </Button>
         </Form>
 
-        {googleEnabled && <p className="mt-4 text-xs leading-relaxed text-muted-foreground">Already have an email/password account? Sign in with your password first, then link Google in Account security.</p>}
-
         {!isRegister && <p className="mt-4 text-right text-sm"><Link className="font-medium text-primary hover:underline" href="/forgot-password">Forgot password?</Link></p>}
+
+        {googleEnabled && <div className="mt-6 grid gap-5">
+          <div className="flex min-w-0 items-center gap-3" role="separator" aria-label="Or continue with">
+            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
+            <span className="shrink-0 text-[10px] font-medium tracking-[0.12em] text-muted-foreground sm:text-[11px]">OR CONTINUE WITH</span>
+            <span aria-hidden="true" className="h-px min-w-3 flex-1 bg-border" />
+          </div>
+          <div className="grid gap-3">
+            <GoogleAuthForm />
+            <p className="text-xs leading-relaxed text-muted-foreground">Already have an email/password account? Sign in with your password first, then link Google in Account security.</p>
+          </div>
+        </div>}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {isRegister ? "Already have an account?" : "New to Ng Wanam?"}{" "}
@@ -134,6 +155,14 @@ export function AuthForm({ mode, notice, googleEnabled = false }: AuthFormProps)
           </Link>
         </p>
       </CardContent>
+      <AlertDialog open={verificationMessage !== null} onOpenChange={open => { if (!open) setVerificationMessage(null); }}>
+        <AlertDialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto">
+          <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"><MailCheck className="size-6" /></span>
+          <AlertDialogTitle>Check your email</AlertDialogTitle>
+          <AlertDialogDescription className="leading-relaxed">{verificationMessage}</AlertDialogDescription>
+          <Button type="button" className="w-full" onClick={() => setVerificationMessage(null)}>Got it</Button>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
