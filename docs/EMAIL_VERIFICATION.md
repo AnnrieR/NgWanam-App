@@ -41,3 +41,27 @@ This change does not provide a new resend-email UI. If delivery fails, inspect
 Supabase Auth/SMTP delivery logs privately and fix configuration before retrying.
 PKCE links opened on a different browser may fail to exchange; sign in normally
 after successful provider verification or restart the intended confirmation flow.
+
+## Container-origin redirects and expired links
+
+The email callback now builds both success and failure redirects from the validated
+web `AUTH_SITE_URL`, not the request origin (which can be `http://0.0.0.0:3000`
+inside the container). Untrusted Host/forwarded headers are not used. Provider
+error parameters fail closed without attempting to exchange an accompanying code.
+
+In Supabase keep `SITE_URL=https://ngwanam.store` and preserve
+`ADDITIONAL_REDIRECT_URLS` with the email, password-reset and Google callbacks.
+The web redirect fix requires deploying the web service; changing the Supabase
+environment requires redeploying Auth too. No database migration/reset is needed.
+
+`otp_expired` is a separate provider error: a link can be expired, already used or
+otherwise invalid. Correcting the redirect does not revive the token or prove an
+account was confirmed. Try password login on the public site; unverified users
+must still be rejected. If needed, obtain a fresh verification email through the
+existing administrator/Auth support flow, and open only the newest link in the
+signup browser. Do not delete the account, mark it confirmed manually, disable
+verification or share the full email link/token in diagnostics.
+
+Local regression tests simulate internal and hostile request origins, successful
+and failed code exchanges, missing tokens, unconfirmed sessions, provider errors
+and unsafe `next` values. They do not verify hosted mail delivery or browser flow.

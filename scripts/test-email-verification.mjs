@@ -67,12 +67,20 @@ try {
     if(value===undefined)delete process.env[key];else process.env[key]=value;
   }
 }
-for(const [query,expected] of [["code=valid&next=/home","/home"],["token_hash=valid&type=signup&next=/home","/home"],["code=valid&next=//evil.invalid","/account"],["code=valid&next=%2F%5Cevil.invalid","/account"]]) {
+for(const origin of ["https://ngwanam.store","http://0.0.0.0:3000","https://evil.invalid"]) {
+for(const [query,expected] of [["code=valid&next=/home","/home"],["token_hash=valid&type=signup&next=/home","/home"],["code=valid&next=//evil.invalid","/account"],["code=valid&next=%2F%5Cevil.invalid","/account"],["error=access_denied&error_code=otp_expired","/login?error=confirmation-failed"],["","/login?error=confirmation-failed"],["code=invalid","/login?error=confirmation-failed"],["code=unconfirmed","/login?error=confirmation-failed"],["code=valid&error_code=otp_expired","/login?error=confirmation-failed"]]) {
+  let exchanges=0;
+  let signouts=0;
+  const exchange=async code=>{exchanges++;return {data:{user:{email_confirmed_at:code==="unconfirmed"?null:"verified"}},error:code==="invalid"?{code:"invalid_grant"}:null};};
   const route=load("src/app/auth/confirm/route.ts",{
     "next/server":{NextResponse:{redirect:url=>({location:url.href})}},
-    "@/lib/supabase/server":{createClient:async()=>({auth:{exchangeCodeForSession:async()=>({data:{user:{email_confirmed_at:"verified"}},error:null}),verifyOtp:async()=>({data:{user:{email_confirmed_at:"verified"}},error:null})}})},
+    "@/lib/email-registration":{registrationCallbackUrl:()=>"https://ngwanam.store/auth/confirm?next=/home"},
+    "@/lib/supabase/server":{createClient:async()=>({auth:{exchangeCodeForSession:exchange,verifyOtp:async()=>exchange("valid"),signOut:async()=>{signouts++;}}})},
   });
-  const result=await route.GET({url:`https://ngwanam.store/auth/confirm?${query}`});assert.equal(result.location,`https://ngwanam.store${expected}`);
+  const result=await route.GET({url:`${origin}/auth/confirm?${query}`});assert.equal(result.location,`https://ngwanam.store${expected}`);
+  if(query.includes("error_code=") || !query)assert.equal(exchanges,0);
+  if(query==="code=unconfirmed")assert.equal(signouts,1);
+}
 }
 assert(fs.readFileSync("src/lib/auth.ts","utf8").includes('if (!user.email_confirmed_at)'));
 assert(fs.readFileSync("infrastructure/supabase/docker-compose.supabase.yml","utf8").includes("ENABLE_EMAIL_AUTOCONFIRM:-false"));
