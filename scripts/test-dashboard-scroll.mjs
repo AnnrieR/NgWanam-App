@@ -62,9 +62,10 @@ for (const [width, height, accountRole, theme] of cases) {
   fs.writeFileSync(file, `<!doctype html><html class="${theme === "dark" ? "dark" : ""}"><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body>${markup}<script>
     const main = document.querySelector('main');
     main.scrollTop = 1e6;
+    window.scrollTo({ top: 1e6, behavior: 'instant' });
     const end = document.querySelector('#checkout-end').getBoundingClientRect();
     const rect = main.getBoundingClientRect();
-    const report = { width: innerWidth, height: innerHeight, pageHeight: document.scrollingElement.scrollHeight, pageWidth: document.scrollingElement.scrollWidth, mainHeight: main.clientHeight, mainScrollHeight: main.scrollHeight, mainScrollTop: main.scrollTop, overflow: getComputedStyle(main).overflowY, endReachable: end.bottom <= rect.bottom + 1, headerTop: document.querySelector('header').getBoundingClientRect().top };
+    const report = { width: innerWidth, height: innerHeight, pageHeight: document.scrollingElement.scrollHeight, pageWidth: document.scrollingElement.scrollWidth, pageScrollTop: scrollY, mainHeight: main.clientHeight, mainScrollHeight: main.scrollHeight, mainScrollTop: main.scrollTop, overflow: getComputedStyle(main).overflowY, endReachable: end.bottom <= Math.min(rect.bottom, innerHeight) + 1 && end.top >= 0, headerTop: document.querySelector('header').getBoundingClientRect().top };
     const output = document.createElement('pre'); output.id='scroll-results'; output.style.cssText='position:fixed;display:none'; output.textContent=JSON.stringify(report); document.body.append(output);
   </script></body></html>`);
   const result = spawnSync(browser, ["--headless=new", "--disable-gpu", "--no-first-run", "--disable-extensions", `--user-data-dir=${path.join(temp, `profile-${width}-${accountRole}-${theme}`)}`, `--window-size=${width},${height}`, "--dump-dom", pathToFileURL(file).href], { encoding: "utf8", timeout: 25000, maxBuffer: 12 * 1024 * 1024 });
@@ -73,7 +74,13 @@ for (const [width, height, accountRole, theme] of cases) {
   assert(encoded, "Browser did not return layout measurements.");
   const measurement = JSON.parse(encoded.replaceAll("&quot;", '"').replaceAll("&amp;", "&"));
   assert(measurement.pageWidth <= measurement.width + 1, `Horizontal overflow: ${JSON.stringify(measurement)}`);
-  if (measurement.width >= 1280) {
+  if (accountRole === "customer") {
+    assert(measurement.pageHeight > measurement.height && measurement.pageScrollTop > 0, "Customer checkout must use document scrolling at every size");
+    assert.equal(measurement.overflow, "visible", "Customer main content must not create an inner scrollbar");
+    assert.equal(measurement.mainScrollTop, 0);
+    assert(measurement.endReachable, "Checkout bottom must remain reachable via normal page scroll");
+    assert(measurement.headerTop >= 0, "Customer header must stay visible while the page scrolls");
+  } else if (measurement.width >= 1280) {
     assert(measurement.pageHeight <= measurement.height + 1, `Outer page must not scroll on desktop: ${JSON.stringify(measurement)}`);
     assert.equal(measurement.overflow, "auto");
     assert(measurement.mainScrollTop > 0 && measurement.endReachable, `Checkout bottom must be reachable: ${JSON.stringify(measurement)}`);

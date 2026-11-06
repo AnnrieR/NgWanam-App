@@ -4,7 +4,7 @@ Checkout offers No request (default), PWD, or Senior Citizen. Selecting a reques
 shows a notice and requires acknowledgment that a valid ID will be prepared and
 the ID owner will be present at delivery or pick-up. No ID number/photo is collected.
 
-This is **a request for staff review**, not proof of eligibility or approval.
+This is **a request for review by staff or rider**, not proof of eligibility or approval.
 Nothing computes/applies a discount, rewrites totals, reduces the requested GCash
 payment, or changes prices, fees, tax, stock reservation or payment processing.
 Existing `place_order` database computation and RPC arguments remain unchanged,

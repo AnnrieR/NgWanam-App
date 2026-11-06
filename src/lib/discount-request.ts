@@ -1,7 +1,7 @@
 export type DiscountRequest = "none" | "pwd" | "senior";
 
 export const discountIdReminder = "Prepare a valid PWD or Senior Citizen ID. The ID owner must be present at delivery or pick-up.";
-export const discountReviewNotice = "Eligibility is subject to staff verification. No discount is applied to the online total.";
+export const discountReviewNotice = "Eligibility is subject to verification by staff or rider. No discount is applied to the online total.";
 
 const markers = {
   pwd: "[PWD discount review requested]",

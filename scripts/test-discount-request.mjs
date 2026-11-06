@@ -16,6 +16,7 @@ function load(file, mocks, hooks = React) {
   return loaded.exports;
 }
 const discount = load("src/lib/discount-request.ts", {});
+assert(discount.discountReviewNotice.includes("staff or rider"));
 assert.equal(discount.withDiscountRequest("Keep my notes", "none"), "Keep my notes");
 for (const type of ["pwd", "senior"]) {
   const note = discount.withDiscountRequest("Keep my notes", type);
@@ -82,6 +83,7 @@ const checkout = load("src/app/(protected)/checkout/checkout-form.tsx", {
 const render = () => { cursor = 0; return nodes(checkout.CheckoutForm({ deliveryAreas: [{ id: "area-1", name: "Area", fee: 50 }], areasFailed: false, gcashQrPath: null, catalog: [{ variant_id: "variant-1", price: 120, available_stock: 10 }] })); };
 const byName = (tree, name) => tree.find(node => node.props?.name === name);
 let tree = render();
+assert(JSON.stringify(tree).includes("Staff or rider will verify"));
 assert(!byName(tree, "discountIdAcknowledged"));
 assert.equal(byName(tree, "discountRequest").props.value, "none");
 assert(tree.some(node => node.type === icons.PhilippinePeso), "COD must render the Philippine peso icon");
