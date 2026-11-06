@@ -6,8 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { dailyOrderCounts } from "@/lib/report-order-trend";
 import { BestSellersChart, OrderStatusChart, OrderVolumeTrend } from "@/components/report-charts";
 
-const currency = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
-
 export default async function ReportsPage() {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(new Date());
   const startOfToday = new Date(`${today}T00:00:00+08:00`).toISOString();
@@ -15,7 +13,7 @@ export default async function ReportsPage() {
   const weekStart = new Date(Date.parse(startOfToday) - 6 * 24 * 60 * 60 * 1000).toISOString();
   const supabase = await createClient();
   const results = await Promise.all([
-    supabase.from("orders").select("status, total", { count: "exact" }).gte("created_at", startOfToday).lt("created_at", endOfToday),
+    supabase.from("orders").select("status", { count: "exact" }).gte("created_at", startOfToday).lt("created_at", endOfToday),
     supabase.from("inventory").select("id, current_stock, reserved_stock, minimum_stock, menu_variants(name, serving_label, menu_items(name))", { count: "exact" }),
     // Same population as User Management: retain tombstones for history,
     // but exclude them from current account totals (inactive accounts still count).
@@ -25,8 +23,6 @@ export default async function ReportsPage() {
     supabase.from("order_items").select("item_name, quantity, orders!inner(status)", { count: "exact" }).eq("orders.status", "completed"),
     // Chatbot conversations live in the log the assistant writes to.
     supabase.from("chatbot_logs").select("session_id, created_at", { count: "exact" }),
-    // Sales remain a summary card only, using actual completion date.
-    supabase.from("orders").select("total", { count: "exact" }).eq("status", "completed").gte("completed_at", startOfToday).lt("completed_at", endOfToday),
     // New trend is order placements, regardless of payment method/status.
     supabase.from("orders").select("created_at", { count: "exact" }).gte("created_at", weekStart).lt("created_at", endOfToday),
   ]);
@@ -35,10 +31,9 @@ export default async function ReportsPage() {
   if (results.some(result => result.error || result.count !== result.data?.length)) {
     return <main className="p-8"><h1 className="text-3xl font-semibold">Operations report</h1><p role="alert" className="mt-5 rounded-xl border p-5">The full report could not be loaded. Refresh to retry. Incomplete totals are not shown; if this persists, check the database connection and API row limit.</p></main>;
   }
-  const [{ data: orders }, { data: inventory }, { data: profiles }, { data: sold }, { data: logs }, { data: completed }, { data: weekOrders }] = results;
+  const [{ data: orders }, { data: inventory }, { data: profiles }, { data: sold }, { data: logs }, { data: weekOrders }] = results;
   const orderDays = dailyOrderCounts(weekOrders ?? [], weekStart);
 
-  const completedSales = (completed ?? []).reduce((sum, order) => sum + Number(order.total), 0);
   const activeOrders = orders?.filter((order) => !["completed", "cancelled"].includes(order.status)).length ?? 0;
   const lowStock = inventory?.filter((item) => item.current_stock - item.reserved_stock <= item.minimum_stock) ?? [];
 
@@ -78,7 +73,7 @@ export default async function ReportsPage() {
         <p className="mt-3 text-xs text-muted-foreground">Includes active and inactive accounts. Deleted accounts are excluded, matching User Management.</p>
       </section>
 
-      <div className="mb-10 grid gap-4 sm:grid-cols-3"><Card className="border shadow-none"><CardHeader><CardTitle>Orders today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{orders?.length ?? 0}</CardContent></Card><Card className="border shadow-none"><CardHeader><CardTitle>Active orders placed today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{activeOrders}</CardContent></Card><Card className="border shadow-none"><CardHeader><CardTitle>Completed sales today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{currency.format(completedSales)}</CardContent></Card></div>
+      <div className="mb-10 grid gap-4 sm:grid-cols-2"><Card className="border shadow-none"><CardHeader><CardTitle>Orders today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{orders?.length ?? 0}</CardContent></Card><Card className="border shadow-none"><CardHeader><CardTitle>Active orders placed today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{activeOrders}</CardContent></Card></div>
 
       <section aria-label="Order charts" className="mb-10 grid gap-5 xl:grid-cols-2">
         <OrderVolumeTrend days={orderDays} />

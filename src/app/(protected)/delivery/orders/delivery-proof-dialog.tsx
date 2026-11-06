@@ -30,12 +30,12 @@ function ProofForm({ onClose, pendingRef, titleId, descriptionId }: {
 
   return <div className="w-full max-w-md rounded-2xl border bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
     <div className="flex items-start justify-between gap-3">
-      <div><DialogTitle id={titleId} className="text-xl font-bold">Proof of delivery</DialogTitle><DialogDescription id={descriptionId} className="mt-2 text-sm text-muted-foreground">Upload a photo before confirming that this order was delivered. Confirming Delivered deducts this order&apos;s reserved stock from on-hand inventory once. Staff can then finalize the order without another deduction.</DialogDescription></div>
+      <div><DialogTitle id={titleId} className="text-xl font-bold">Confirm delivery</DialogTitle><DialogDescription id={descriptionId} className="mt-2 text-sm text-muted-foreground">A proof photo is optional. You may confirm Delivered without uploading an image. Confirming Delivered deducts this order&apos;s reserved stock from on-hand inventory once. Staff can then finalize the order without another deduction.</DialogDescription></div>
       <Button variant="ghost" aria-label="Close proof upload" className="rounded-lg p-1 hover:bg-muted disabled:opacity-50" disabled={pending} onClick={onClose} type="button"><X className="size-5" /></Button>
     </div>
     <Label className="mt-5 grid cursor-pointer gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm dark:border-slate-600 dark:bg-slate-800">
-      <span className="flex items-center gap-2 font-semibold"><ImagePlus className="size-5 text-red-500" />Proof photo (required)</span>
-      <Input autoFocus aria-label="Proof-of-delivery photo" type="file" name="proofPhoto" accept="image/jpeg,image/png,image/webp" required disabled={pending} className="w-full min-w-0 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-white" onChange={(event) => {
+      <span className="flex items-center gap-2 font-semibold"><ImagePlus className="size-5 text-red-500" />Proof photo (optional)</span>
+      <Input autoFocus aria-label="Proof-of-delivery photo (optional)" type="file" name="proofPhoto" accept="image/jpeg,image/png,image/webp" disabled={pending} className="w-full min-w-0 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-white" onChange={(event) => {
         const file = event.currentTarget.files?.[0] ?? null;
         if (file && (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size === 0 || file.size >= 1024 * 1024)) {
           event.currentTarget.value = "";
@@ -48,7 +48,7 @@ function ProofForm({ onClose, pendingRef, titleId, descriptionId }: {
         setPreview(file ? URL.createObjectURL(file) : "");
         setError("");
       }} />
-      <span className="text-xs text-muted-foreground">One JPG, PNG, or WebP image · smaller than 1 MB</span>
+      <span className="text-xs text-muted-foreground">If uploading: one JPG, PNG, or WebP image · smaller than 1 MB</span>
     </Label>
     {error && <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
     {preview && <div className="mt-4 space-y-2">
@@ -58,7 +58,7 @@ function ProofForm({ onClose, pendingRef, titleId, descriptionId }: {
     </div>}
     <div className="mt-6 flex justify-end gap-2">
       <Button variant="outline" disabled={pending} onClick={onClose} type="button">Cancel</Button>
-      <Button disabled={pending || !photo} type="submit">{pending ? <><LoaderCircle className="size-4 animate-spin" />Uploading...</> : "Confirm delivered"}</Button>
+      <Button disabled={pending} type="submit">{pending ? <><LoaderCircle className="size-4 animate-spin" />Confirming...</> : "Confirm delivered"}</Button>
     </div>
   </div>;
 }

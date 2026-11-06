@@ -84,14 +84,14 @@ export function RoleDashboard({ children, fullName, role, deliveryAssignments = 
   }, [role, deliveryAssignments]);
 
   return (
-    <div className="font-dashboard min-h-dvh bg-slate-100 dark:bg-slate-950 xl:h-dvh xl:p-3">
+    <div className="font-dashboard min-h-dvh bg-slate-100 dark:bg-slate-950 xl:h-dvh xl:overflow-hidden xl:p-3">
       <div className="mx-auto flex min-h-dvh max-w-[1440px] flex-col bg-[#fafafa] text-slate-900 dark:bg-slate-900 dark:text-slate-100 xl:h-[calc(100dvh-1.5rem)] xl:min-h-0 xl:overflow-hidden xl:rounded-2xl xl:shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
       <header className="z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-100 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6">
         <Button variant="ghost" aria-label="Open dashboard menu" className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden" onClick={() => setOpen(true)} type="button"><Menu className="size-5" /></Button>
         <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">{role === "delivery" ? "Rider workspace" : role === "admin" ? "Admin workspace" : "Staff workspace"}</p>
          <div className="ml-auto flex items-center gap-2 sm:gap-3"><NotificationBell role={role} /><ThemeToggle /><Link href="/account" className="hidden items-center gap-3 sm:flex"><span className="grid size-8 place-items-center rounded-full bg-red-100 text-sm font-semibold text-red-600 dark:bg-red-950 dark:text-red-400">{initial}</span><span className="text-sm font-medium">{name}</span></Link><Button type="button" variant="ghost" size="icon" aria-label="Log out" title="Log out" className="shrink-0 text-muted-foreground hover:text-red-600 dark:hover:text-red-400" onClick={() => { setOpen(false); setConfirmSignOut(true); }}><LogOut aria-hidden="true" className="size-5" /></Button></div>
       </header>
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 min-w-0 flex-1">
         <div aria-hidden={!open} className={cn("fixed inset-0 z-40 bg-slate-950/30 dark:bg-black/60 lg:hidden", open ? "block" : "hidden")} onClick={() => setOpen(false)} />
         <aside className={cn("fixed inset-y-0 left-0 z-50 flex w-64 flex-col overflow-y-auto border-r border-slate-100 bg-white p-4 transition-transform dark:border-slate-800 dark:bg-slate-900 lg:static lg:h-full lg:shrink-0 lg:translate-x-0", open ? "translate-x-0" : "-translate-x-full")}>
           <div className="mb-6 flex items-center justify-between lg:hidden"><span className="text-sm font-semibold">Menu</span><Button variant="ghost" aria-label="Close dashboard menu" className="rounded p-2 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => setOpen(false)} type="button"><X className="size-5" /></Button></div>
@@ -107,7 +107,7 @@ export function RoleDashboard({ children, fullName, role, deliveryAssignments = 
             <Link className="block rounded-lg bg-gradient-to-br from-red-700 to-red-600 p-5 text-sm text-white" href="/"><p className="font-semibold">Back to website</p><p className="mt-1 text-xs text-white/80">View Ng Wanam&apos;s public home page.</p></Link>
           </div>
         </aside>
-        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:overflow-y-auto lg:p-8">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 p-4 sm:p-6 lg:p-8 xl:overflow-y-auto">{children}</main>
       </div>
       </div>
 

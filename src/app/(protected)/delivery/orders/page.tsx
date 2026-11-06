@@ -43,7 +43,7 @@ function DeliveryNotice({ error, updated }: { error?: string; updated?: string }
       error === "proof-invalid" ? "Choose exactly one JPG, PNG, or WebP proof photo, smaller than 1 MB."
         : error === "proof-upload-failed" ? "Proof photo could not be uploaded. Refresh and check that the order is still active."
         : error === "update-failed" || error === "invalid-status"
-          ? "Delivery update could not be saved. The order must be active, with a proof photo and valid stock reservation. Refresh and ask staff to review any stock issue."
+          ? "Delivery update could not be saved. The order must be active with a valid stock reservation. Proof photos are optional. Refresh and ask staff to review any stock issue."
         : "That request could not be completed.";
     return <p className="mb-3 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">{message}</p>;
   }

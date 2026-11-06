@@ -20,15 +20,19 @@ export async function updateDeliveryStatus(formData: FormData) {
   const supabase = await createClient();
   let photoPath: string | null = null;
   if (nextStatus === "delivered") {
-    const files = formData.getAll("proofPhoto").filter((file) => file instanceof File && file.size > 0);
+    // Browsers send an unnamed empty File when the optional chooser is unused.
+    // A named empty file or non-file value is invalid, not an omitted photo.
+    const files = formData.getAll("proofPhoto").filter((file) => !(file instanceof File && file.size === 0 && file.name === ""));
     const file = files[0];
-    if (files.length !== 1 || !(file instanceof File)) redirect("/delivery/orders?error=proof-invalid");
-    const image = await validateImage(file);
-    if (!image) redirect("/delivery/orders?error=proof-invalid");
-    const { bytes, type: extension } = image;
-    photoPath = `${user.id}/${deliveryId}/${crypto.randomUUID()}.${extension}`;
-    const upload = await supabase.storage.from("delivery-proofs").upload(photoPath, bytes, { contentType: file.type });
-    if (upload.error) redirect("/delivery/orders?error=proof-upload-failed");
+    if (files.length > 1 || (files.length === 1 && !(file instanceof File))) redirect("/delivery/orders?error=proof-invalid");
+    if (file instanceof File) {
+      const image = await validateImage(file);
+      if (!image) redirect("/delivery/orders?error=proof-invalid");
+      const { bytes, type: extension } = image;
+      photoPath = `${user.id}/${deliveryId}/${crypto.randomUUID()}.${extension}`;
+      const upload = await supabase.storage.from("delivery-proofs").upload(photoPath, bytes, { contentType: file.type });
+      if (upload.error) redirect("/delivery/orders?error=proof-upload-failed");
+    }
   }
   const { error } = await supabase.rpc("update_delivery_status", {
     p_delivery_id: deliveryId,

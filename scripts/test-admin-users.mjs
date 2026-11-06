@@ -91,7 +91,7 @@ const filters = [];
 const client = { from: table => {
   let deletedFilter = false;
   const query = {
-    select: () => query, gte: () => query, lt: () => query, order: () => query, eq: () => query,
+    select: fields => { if (table === "orders") assert(!fields.includes("total"), "Operations report must not fetch monetary sales totals"); return query; }, gte: () => query, lt: () => query, order: () => query, eq: () => query,
     is: (column, value) => { assert.equal(table, "profiles"); assert.equal(column, "deleted_at"); assert.equal(value, null); deletedFilter = true; filters.push(table); return query; },
     then: (resolve, reject) => {
       const rows = table === "profiles" ? profiles.filter(row => !deletedFilter || row.deleted_at === null) : [];
@@ -107,6 +107,8 @@ const report = load("src/app/(protected)/admin/reports/page.tsx", {
   "@/components/report-charts": { BestSellersChart: noop, OrderStatusChart: noop, OrderVolumeTrend: noop },
 });
 const reportText = text(await report.default());
+assert(!reportText.includes("Completed sales today"));
+for (const label of ["Orders today", "Active orders placed today", "Best sellers", "Chatbot conversations", "Stock requiring attention"]) assert(reportText.includes(label));
 for (const value of ["5 registered accounts", "Registered customers1", "Total users5", "Staff1", "Riders1", "Admins2"]) assert(reportText.includes(value), value);
 assert(reportText.includes("Deleted accounts are excluded"));
 assert.equal(filters.length, 1);
@@ -130,3 +132,14 @@ assert(text(await report.default()).includes("The full report could not be loade
 fail = false; truncate = true;
 assert(text(await report.default()).includes("The full report could not be loaded"));
 console.log("PASS admin users: both real password controls toggle independently with accessible non-submit buttons and preserved constraints; create form wiring; 14 retained/9 deleted => 5 current accounts, role counts match User Management including inactive users, search-independent summaries, error/truncation fail-closed. Mocked state/database only; no live writes.");
+
+const hours = load("src/lib/hours.ts", {});
+const newHours = "Daily, 7:30 AM - 7:00 PM";
+assert.deepEqual(hours.parseHoursRange(newHours), { startLabel: "7:30 AM", endLabel: "7:00 PM", startMin: 450, endMin: 1140 });
+assert.equal(hours.getWeeklyHours(newHours).length, 7);
+assert(hours.getWeeklyHours(newHours).every(day => day.value === "7:30 AM - 7:00 PM"));
+const hoursSql = fs.readFileSync("supabase/migrations/20261106010000_update_restaurant_opening_hours.sql", "utf8");
+assert(hoursSql.includes(`operating_hours = '${newHours}'`) && hoursSql.includes("where id = true"));
+assert(hoursSql.includes("and response = 'Ng Wanam Food House is open daily from 6:30 AM to 7:30 PM.'"));
+assert(!/\b(?:insert|delete|truncate|drop)\b/i.test(hoursSql));
+console.log("PASS report sales card/monetary queries removed, operational sections retained; new daily hours parse into all seven footer days; targeted settings/stock-safe SQL source checked only (not applied to a database).");

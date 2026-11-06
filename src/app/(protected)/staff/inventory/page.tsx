@@ -25,7 +25,7 @@ export default async function StaffInventoryPage({ searchParams }: StaffInventor
     </header>
     {notice && <p role="status" className={`rounded-xl px-4 py-3 text-sm ${error ? "bg-red-500/10 text-red-700 dark:text-red-300" : "bg-green-500/10 text-green-800 dark:text-green-300"}`}>{notice}</p>}
     <Card className="border shadow-none">
-      <CardHeader><CardTitle>Stock levels &amp; alerts</CardTitle><p className="text-sm leading-6 text-muted-foreground">Sellable = on hand − reserved. Low-stock alerts trigger when sellable stock is at or below the serving&apos;s threshold. Example: threshold 10 means an alert at 10 or fewer sellable servings. Delivery stock deducts when the rider confirms Delivered with proof. Pick-up stock deducts at staff Completed; delivery completion does not deduct twice.</p></CardHeader>
+      <CardHeader><CardTitle>Stock levels &amp; alerts</CardTitle><p className="text-sm leading-6 text-muted-foreground">Sellable = on hand − reserved. Low-stock alerts trigger when sellable stock is at or below the serving&apos;s threshold. Example: threshold 10 means an alert at 10 or fewer sellable servings. Delivery stock deducts when the rider confirms Delivered; the proof photo is optional. Pick-up stock deducts at staff Completed; delivery completion does not deduct twice.</p></CardHeader>
       <CardContent><InventoryTable key={revision ?? "inventory"} rows={rows} initialLowOnly={low === "1"} /></CardContent>
     </Card>
   </div>;
