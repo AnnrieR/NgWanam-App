@@ -164,7 +164,30 @@ assert.equal((await setup({ rpcError: {} }).actions.createMenuVariant(form())).o
   assert(success.calls.refreshed.includes("/menu") && success.calls.refreshed.includes("/home"));
   assert.equal((await setup({ rpcError: {} }).actions.deleteMenuVariant(form({ confirmed: "yes" }))).ok, false);
 } groups++;
+for (const role of ["admin", "staff"]) {
+  const saved = setup({ role });
+  assert((await saved.actions.updateMenuItem(form({ removeImage: "yes" }))).ok);
+  assert.equal(saved.calls.updates[0].table, "menu_items");
+  assert.equal(saved.calls.updates[0].payload.image_url, null);
+  assert.equal(saved.calls.updates.length, 1);
+  assert.equal(saved.calls.uploads.length + saved.calls.removed.length + saved.calls.rpc.length, 0);
+  assert(saved.calls.refreshed.includes("/menu"));
+  const failed = setup({ updateError: {} });
+  assert(!(await failed.actions.updateMenuItem(form({ removeImage: "yes" }))).ok);
+  assert.equal(failed.calls.removed.length, 0);
+}
+{
+  const conflict = setup();
+  const data = form({ removeImage: "yes" });
+  data.set("image", new File(["fixture"], "image.png", { type: "image/png" }));
+  assert(!(await conflict.actions.updateMenuItem(data)).ok);
+  assert.equal(conflict.calls.updates.length + conflict.calls.uploads.length, 0);
+  const denied = setup({ denied: true });
+  await assert.rejects(denied.actions.updateMenuItem(form({ removeImage: "yes" })), /Access denied/);
+} groups++;
 const ui = fs.readFileSync("src/app/menu/menu-crud.tsx", "utf8");
+assert(ui.includes(">Delete image</Button>") && ui.includes('name="removeImage"'));
+assert(ui.includes("Image will be removed when you save item details.") && ui.includes(">Undo</Button>"));
 assert(ui.includes("event.preventDefault()") && ui.includes("if (lockRef.current) return"));
 assert(ui.includes('<fieldset disabled={busy}') && ui.includes('aria-busy={busy}'));
 assert(ui.includes('role="alert"') && ui.includes('role="status"') && ui.includes('aria-live="polite"'));

@@ -107,6 +107,10 @@ export async function updateMenuItem(formData: FormData): Promise<MenuSaveResult
   const menuItemId = String(formData.get("menuItemId") ?? "");
   const categoryId = String(formData.get("categoryId") ?? "");
   const itemName = String(formData.get("itemName") ?? "").trim();
+  const removeImage = formData.get("removeImage") === "yes";
+  if (removeImage && formData.getAll("image").some(entry => entry instanceof File && entry.size > 0)) {
+    return { ok: false, error: "Choose either deleting the current image or uploading a replacement, not both." };
+  }
 
   if (!uuid.test(menuItemId) || !uuid.test(categoryId) || !itemName) {
     return { ok: false, error: "A valid item, category, and item name are required." };
@@ -124,7 +128,7 @@ export async function updateMenuItem(formData: FormData): Promise<MenuSaveResult
       category_id: categoryId,
       name: itemName,
       description: String(formData.get("description") ?? "").trim() || null,
-      image_url: image?.url ?? existing.image_url,
+      image_url: removeImage ? null : image?.url ?? existing.image_url,
       is_active: formData.get("isActive") === "on",
       is_best_seller: formData.get("isBestSeller") === "on",
       requires_preorder: formData.get("requiresPreorder") === "on",
@@ -137,6 +141,7 @@ export async function updateMenuItem(formData: FormData): Promise<MenuSaveResult
     await removeUploadedImage(supabase, image?.url ?? null);
     return { ok: false, error: "The item could not be saved. Check the category and whether that name is already in use." };
   }
+  // Removal detaches the photo only; do not delete potentially shared Storage assets.
   if (image) await removeUploadedImage(supabase, existing.image_url);
 
   refreshMenu();

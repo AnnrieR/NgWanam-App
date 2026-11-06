@@ -313,9 +313,11 @@ function CategorySelect({ categories, defaultValue }: { categories: CategoryOpti
 
 function ImageUpload({ current, name = "Menu photo" }: { current?: string | null; name?: string }) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [removed, setRemoved] = useState(false);
+  const uploadRef = useRef<HTMLDivElement>(null);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
   return (
-    <div className="grid gap-2 sm:col-span-2">
+    <div ref={uploadRef} className="grid gap-2 sm:col-span-2">
       <Label className={labelClass}>Upload image (optional)
         <Input name="image" type="file" accept="image/jpeg,image/png,image/webp"
           onChange={(event) => {
@@ -323,11 +325,25 @@ function ImageUpload({ current, name = "Menu photo" }: { current?: string | null
             const invalid = file && (file.size >= 1024 * 1024 || !["image/jpeg", "image/png", "image/webp"].includes(file.type));
             event.target.setCustomValidity(invalid ? "Choose one JPG, PNG, or WebP image smaller than 1 MB." : "");
             if (invalid) event.target.checkValidity();
+            if (file && !invalid) setRemoved(false);
             setPreview(file && !invalid ? URL.createObjectURL(file) : null);
           }} />
       </Label>
       <p className="text-xs text-muted-foreground">One image per menu · JPG, PNG, or WebP · smaller than 1 MB. Uploading a new image replaces the current one.</p>
-      {(preview || current) && <div className="w-40"><MenuImage key={preview || current} name={name} src={preview || current} className="rounded-xl" /></div>}
+      <input type="hidden" name="removeImage" value={removed ? "yes" : "no"} />
+      {(preview || (current && !removed)) && <>
+        <div className="w-40"><MenuImage key={preview || current} name={name} src={preview || current} className="rounded-xl" /></div>
+        <Button className="w-fit" size="sm" variant="destructive" type="button" onClick={() => {
+          const input = uploadRef.current?.querySelector<HTMLInputElement>('input[type="file"]');
+          if (input) { input.value = ""; input.setCustomValidity(""); }
+          setPreview(null);
+          setRemoved(Boolean(current));
+        }}>Delete image</Button>
+      </>}
+      {removed && <div className="flex flex-wrap items-center gap-2">
+        <p role="status" className="text-xs text-muted-foreground">Image will be removed when you save item details.</p>
+        <Button size="sm" variant="outline" type="button" onClick={() => setRemoved(false)}>Undo</Button>
+      </div>}
     </div>
   );
 }
