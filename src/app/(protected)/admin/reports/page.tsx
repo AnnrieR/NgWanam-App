@@ -17,8 +17,9 @@ export default async function ReportsPage() {
   const results = await Promise.all([
     supabase.from("orders").select("status, total", { count: "exact" }).gte("created_at", startOfToday).lt("created_at", endOfToday),
     supabase.from("inventory").select("id, current_stock, reserved_stock, minimum_stock, menu_variants(name, serving_label, menu_items(name))", { count: "exact" }),
-    // Registered customers and users.
-    supabase.from("profiles").select("role", { count: "exact" }),
+    // Same population as User Management: retain tombstones for history,
+    // but exclude them from current account totals (inactive accounts still count).
+    supabase.from("profiles").select("role", { count: "exact" }).is("deleted_at", null),
     // Best sellers: servings actually sold, counted only from completed orders
     // (`!inner` drops the rows whose order does not match).
     supabase.from("order_items").select("item_name, quantity, orders!inner(status)", { count: "exact" }).eq("orders.status", "completed"),
@@ -74,6 +75,7 @@ export default async function ReportsPage() {
           <Card className="border shadow-none"><CardHeader><CardTitle>Riders</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{roleCount("delivery")}</CardContent></Card>
           <Card className="border shadow-none"><CardHeader><CardTitle>Admins</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{roleCount("admin")}</CardContent></Card>
         </div>
+        <p className="mt-3 text-xs text-muted-foreground">Includes active and inactive accounts. Deleted accounts are excluded, matching User Management.</p>
       </section>
 
       <div className="mb-10 grid gap-4 sm:grid-cols-3"><Card className="border shadow-none"><CardHeader><CardTitle>Orders today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{orders?.length ?? 0}</CardContent></Card><Card className="border shadow-none"><CardHeader><CardTitle>Active orders placed today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{activeOrders}</CardContent></Card><Card className="border shadow-none"><CardHeader><CardTitle>Completed sales today</CardTitle></CardHeader><CardContent className="text-3xl font-semibold">{currency.format(completedSales)}</CardContent></Card></div>

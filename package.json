@@ -19,6 +19,7 @@
     "test:email": "node scripts/test-email-verification.mjs",
     "test:registration-ui": "node scripts/test-registration-ui.mjs",
     "test:account-delete": "node scripts/test-account-delete.mjs",
+    "test:admin-users": "node scripts/test-admin-users.mjs",
     "test:google:db": "node scripts/test-google-auth-db.mjs"
   },
   "dependencies": {

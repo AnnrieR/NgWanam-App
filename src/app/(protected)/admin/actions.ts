@@ -62,6 +62,7 @@ export async function deleteAccount(formData: FormData): Promise<AccountDeleteRe
     warning = "The login and profile were deleted, but avatar cleanup still needs administrator review.";
   }
   revalidatePath("/admin/users");
+  revalidatePath("/admin/reports");
   return warning ? { ok: true, warning } : { ok: true };
   } catch (error) {
     return accountDeleteFailure(stage, error, "We could not confirm account deletion. Refresh User Management before retrying. Check the web server logs using the reference below.");
@@ -120,6 +121,7 @@ export async function updateProfile(formData: FormData) {
   }
 
   revalidatePath("/admin/users");
+  revalidatePath("/admin/reports");
   redirect("/admin/users?updated=1");
 }
 

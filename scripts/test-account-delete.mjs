@@ -67,6 +67,7 @@ try {
   assert.equal(scrub.is_active, false); assert(scrub.deleted_at); assert.equal(scrub.full_name, "Deleted account");
   assert.equal(scrub.email, `deleted-${target}@removed.invalid`); assert.equal(scrub.phone, null);
   assert(success.calls.some(([name]) => name === "refresh"));
+  assert(success.calls.some(([name, path]) => name === "refresh" && path === "/admin/reports"));
   const avatarFailure = await setup({ throwAvatar: true }).run(form());
   assert(avatarFailure.ok && avatarFailure.warning.includes("avatar cleanup"));
   const serialized = JSON.stringify(logs);
