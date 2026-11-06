@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Disclosure, DisclosureSummary } from "@/components/ui/disclosure";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Banknote, Info, MapPin, Phone, UserRound, Wallet } from "lucide-react";
+import { ArrowLeft, ArrowRight, Info, MapPin, PhilippinePeso, Phone, UserRound, Wallet } from "lucide-react";
 import { useActionState, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { DeliveryAreaPicker } from "@/components/delivery-area-picker";
 import type { DeliveryArea } from "@/lib/delivery-areas";
 import { gcashIsAvailable } from "@/lib/gcash-settings";
 import { GcashQrImage } from "@/components/gcash-qr-image";
+import { discountIdReminder, discountReviewNotice, type DiscountRequest } from "@/lib/discount-request";
 
 const money = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
 const panel = "rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900";
@@ -40,6 +41,7 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
   const selectedArea = deliveryAreas.find(area => area.id===deliveryAreaId);
   const [payment, setPayment] = useState("cod");
   const [note, setNote] = useState("");
+  const [discountRequest, setDiscountRequest] = useState<DiscountRequest>("none");
   const [state, formAction, isPending] = useActionState(placeOrder, initialState);
   const products = new Map(catalog.map((product) => [product.variant_id, product]));
   const priceOf = (id: string, fallback: number) => Number(products.get(id)?.price ?? fallback);
@@ -73,8 +75,24 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
           </div>
           <Disclosure className="mt-4 text-xs"><DisclosureSummary className="cursor-pointer font-semibold text-slate-500 dark:text-slate-400">Requested time & kitchen instructions (optional)</DisclosureSummary><div className="mt-3 grid gap-4 sm:grid-cols-2"><Label className={label}>Requested Time<Input name="requiredAt" type="datetime-local" className={input} /><span className="font-normal text-slate-500 dark:text-slate-400">A request, not a guaranteed delivery time.</span></Label>{orderType === "delivery" && <Label className={label}>Note to Kitchen<Textarea name="noteToStaff" className={input} maxLength={150} /></Label>}</div></Disclosure>
         </section>
+        <section className={panel} aria-labelledby="discount-request-title">
+          <h2 id="discount-request-title" className="mb-2 text-base font-bold">PWD / Senior Citizen discount request</h2>
+          <p className="mb-4 text-xs leading-5 text-muted-foreground">Select an option if you would like staff to review your eligibility for a discount. This is a request, not an approved discount.</p>
+          <RadioGroup name="discountRequest" value={discountRequest} disabled={isPending} onValueChange={value => setDiscountRequest(value as DiscountRequest)} aria-labelledby="discount-request-title" className="grid gap-3 sm:grid-cols-3">
+            {[{ value: "none", text: "No request" }, { value: "pwd", text: "PWD" }, { value: "senior", text: "Senior Citizen" }].map(option => <Label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm"><RadioGroupItem value={option.value} />{option.text}</Label>)}
+          </RadioGroup>
+          <div className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-950 dark:border-orange-900 dark:bg-orange-950/30 dark:text-orange-100">
+            <p className="font-semibold">ID requirement for PWD / Senior Citizen requests</p>
+            <p>{discountIdReminder}</p>
+            <p className="mt-1">{discountReviewNotice}</p>
+          </div>
+          {discountRequest !== "none" && <div className="mt-3 space-y-3">
+            <p role="status" className="text-xs leading-5 text-muted-foreground">{discountRequest === "pwd" ? "PWD" : "Senior Citizen"} discount review will be included in your order notes for staff. The amount shown remains unchanged.</p>
+            <Label className="flex items-start gap-2 text-xs leading-5"><Input type="checkbox" name="discountIdAcknowledged" required disabled={isPending} />I understand that a valid ID must be ready and the ID owner must be present.</Label>
+          </div>}
+        </section>
         <section className={panel}><h2 className="mb-4 text-base font-bold">Payment Method</h2><RadioGroup name="paymentMethod" value={selectedPayment} onValueChange={value => setPayment(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {[{ value: "cod", icon: Banknote, title: orderType === "pickup" ? "COD · Pay on Pick-up" : "COD (Cash on Delivery)", text: "Pay in cash upon receiving your order." }, { value: "gcash", icon: Wallet, title: "Manual GCash", text: "Send payment via GCash and enter payment details." }].map(({ value, icon: Icon, title, text }) => <Label key={value} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${selectedPayment === value ? "border-red-500" : "border-slate-200 dark:border-slate-700"}`}><RadioGroupItem value={value} disabled={value === "gcash" && !gcashAvailable} /><Icon className="size-6 shrink-0 text-red-500" /><span><span className="block text-xs font-bold">{title}</span><span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">{value === "gcash" && !gcashAvailable ? "Not configured / unavailable" : text}</span></span></Label>)}
+          {[{ value: "cod", icon: PhilippinePeso, title: orderType === "pickup" ? "COD · Pay on Pick-up" : "COD (Cash on Delivery)", text: "Pay in cash upon receiving your order." }, { value: "gcash", icon: Wallet, title: "Manual GCash", text: "Send payment via GCash and enter payment details." }].map(({ value, icon: Icon, title, text }) => <Label key={value} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${selectedPayment === value ? "border-red-500" : "border-slate-200 dark:border-slate-700"}`}><RadioGroupItem value={value} disabled={value === "gcash" && !gcashAvailable} /><Icon aria-hidden="true" className="size-6 shrink-0 text-red-500" /><span><span className="block text-xs font-bold">{title}</span><span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">{value === "gcash" && !gcashAvailable ? "Not configured / unavailable" : text}</span></span></Label>)}
           </RadioGroup>
           {selectedPayment === "gcash" && <div className="mt-5 overflow-hidden rounded-lg border border-orange-200 dark:border-orange-900"><p className="flex items-center gap-2 bg-orange-50 p-3 text-xs dark:bg-orange-950/30"><Info className="size-4 text-orange-500" />Please enter your GCash payment details manually.</p><div className="space-y-3 p-3"><p className="text-xs" data-gcash-recipient>Send payment to <strong>{gcashAccountName}</strong>: {gcashAccountNumber}</p><p className="text-xs text-muted-foreground">Verify this recipient in GCash before sending money. The fields below are your sender details, not the restaurant&apos;s account.</p>{gcashQrPath && <GcashQrImage key={gcashQrPath} src={gcashQrPath} />}<div className="grid gap-3 sm:grid-cols-3"><Label className={label}>Name of Sender<Input name="gcashSenderName" className={input} required /></Label><Label className={label}>Sender GCash Number<Input name="gcashNumber" className={input} type="tel" required /></Label><Label className={label}>Reference Number<Input name="gcashReferenceNumber" className={input} required /></Label></div><p className="text-xs text-slate-500 dark:text-slate-400">Payment is verified by staff after you place the order.</p></div></div>}
         </section>

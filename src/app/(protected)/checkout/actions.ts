@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth";
+import { withDiscountRequest, type DiscountRequest } from "@/lib/discount-request";
 
 export type CheckoutState = { error?: string };
 
@@ -19,6 +20,12 @@ export async function placeOrder(_: CheckoutState, formData: FormData): Promise<
   const paymentMethod = stringValue(formData, "paymentMethod");
   // Default to delivery so a stale or hand-edited form cannot invent a type.
   const orderType = stringValue(formData, "orderType") === "pickup" ? "pickup" : "delivery";
+  const discountRequest = stringValue(formData, "discountRequest") || "none";
+  if (!["none", "pwd", "senior"].includes(discountRequest)) return { error: "Choose a valid discount-review option." };
+  // The shared Checkbox submits "on". No ID numbers or ID images are collected.
+  if (discountRequest !== "none" && stringValue(formData, "discountIdAcknowledged") !== "on") {
+    return { error: "Confirm that you will prepare a valid ID and that the ID owner will be present." };
+  }
   const deliveryAreaId = stringValue(formData,"deliveryAreaId");
   const expectedFeeValue = stringValue(formData,"expectedDeliveryFee");
   const expectedFee = Number(expectedFeeValue);
@@ -68,8 +75,8 @@ export async function placeOrder(_: CheckoutState, formData: FormData): Promise<
     p_contact_name: contactName,
     p_contact_phone: contactPhone,
     p_delivery_address: deliveryAddress,
-    p_note_to_staff: stringValue(formData, "noteToStaff"),
-    p_note_to_driver: stringValue(formData, "noteToDriver"),
+    p_note_to_staff: withDiscountRequest(stringValue(formData, "noteToStaff"), discountRequest as DiscountRequest),
+    p_note_to_driver: orderType === "delivery" ? withDiscountRequest(stringValue(formData, "noteToDriver"), discountRequest as DiscountRequest) : stringValue(formData, "noteToDriver"),
     p_required_at: requiredAt?.toISOString() ?? null,
     p_payment_method: paymentMethod,
     p_order_type: orderType,

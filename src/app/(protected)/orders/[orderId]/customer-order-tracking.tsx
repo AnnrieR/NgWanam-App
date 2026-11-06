@@ -12,6 +12,7 @@ import { ConfirmAction } from "@/components/confirm-action";
 import { ClearCart } from "./clear-cart";
 import { TrackingRefresh } from "./tracking-refresh";
 import { ReceiptLink } from "@/components/receipt-link";
+import { DiscountRequestNotice } from "@/components/discount-request-notice";
 
 export type TrackingOrder = {
   id: string; number: string | number; status: string; pickup: boolean; createdAt: string;
@@ -53,6 +54,7 @@ export function CustomerOrderTracking({ order, meta, restaurant, isNew, cancelle
     <Link href="/orders" className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400"><ArrowLeft className="size-4" />Back to Orders</Link>
     <header className="my-4 flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-bold">Track Your Order</h1><p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{terminal ? "Your order status and details." : "Order status updates automatically every 15 seconds."}</p></div><ReceiptLink orderId={order.id} /></header>
     {isNew && <p role="status" className="mb-4 rounded-xl bg-green-50 p-4 text-sm text-green-800 dark:bg-green-950 dark:text-green-300">Order placed successfully!</p>}
+    <DiscountRequestNotice staffNote={order.staffNote} driverNote={order.driverNote} />
     {error && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">The action could not be completed. Please try again.</p>}
     {cancelled && <p role="status" className="mb-4 rounded-xl bg-slate-100 p-4 text-sm dark:bg-slate-800">Your order has been cancelled.</p>}
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
