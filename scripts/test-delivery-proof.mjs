@@ -42,7 +42,7 @@ function form(files = [], status = "delivered") {
   for (const file of files) data.append("proofPhoto", file);
   return data;
 }
-for (const files of [[], [new File([], "", { type: "application/octet-stream" })]]) {
+for (const files of [[], [""], [new File([], "", { type: "application/octet-stream" })]]) {
   const test = setup();
   await assert.rejects(test.run(form(files)), /redirect:\/delivery\/orders\?updated=1/);
   assert.deepEqual(test.calls.find(([name]) => name === "rpc")[1], { p_delivery_id: "delivery-id", p_next_status: "delivered", p_proof_photo_path: null });
@@ -89,7 +89,8 @@ function nodes(tree) {
 }
 const render = () => nodes(dialog.ProofForm({ onClose: noop, pendingRef: { current: false }, titleId: "title", descriptionId: "description" }));
 let tree = render();
-assert(!tree.find(node => node.props?.name === "proofPhoto").props.required);
+assert(!tree.find(node => node.props?.type === "file").props.required);
+assert.equal(tree.find(node => node.props?.type === "file").props.name, undefined, "Unused optional chooser must not submit a multipart field");
 assert.equal(tree.find(node => node.props?.type === "submit").props.disabled, false, "No-photo confirmation must be enabled");
 assert(JSON.stringify(tree).includes("Proof photo (optional)"));
 pending = true; tree = render();

@@ -20,9 +20,10 @@ export async function updateDeliveryStatus(formData: FormData) {
   const supabase = await createClient();
   let photoPath: string | null = null;
   if (nextStatus === "delivered") {
-    // Browsers send an unnamed empty File when the optional chooser is unused.
+    // An unused chooser can arrive as an unnamed empty File or an empty string
+    // after multipart/Server Action transport. Both mean no optional photo.
     // A named empty file or non-file value is invalid, not an omitted photo.
-    const files = formData.getAll("proofPhoto").filter((file) => !(file instanceof File && file.size === 0 && file.name === ""));
+    const files = formData.getAll("proofPhoto").filter((file) => file !== "" && !(file instanceof File && file.size === 0 && file.name === ""));
     const file = files[0];
     if (files.length > 1 || (files.length === 1 && !(file instanceof File))) redirect("/delivery/orders?error=proof-invalid");
     if (file instanceof File) {

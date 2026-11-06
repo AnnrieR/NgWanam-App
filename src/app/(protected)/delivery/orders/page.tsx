@@ -40,7 +40,7 @@ function RiderActions({ deliveryId, status, orderStatus }: { deliveryId: string;
 function DeliveryNotice({ error, updated }: { error?: string; updated?: string }) {
   if (error) {
     const message =
-      error === "proof-invalid" ? "Choose exactly one JPG, PNG, or WebP proof photo, smaller than 1 MB."
+      error === "proof-invalid" ? "Proof photo is optional. If uploading, choose one valid JPG, PNG, or WebP image smaller than 1 MB."
         : error === "proof-upload-failed" ? "Proof photo could not be uploaded. Refresh and check that the order is still active."
         : error === "update-failed" || error === "invalid-status"
           ? "Delivery update could not be saved. The order must be active with a valid stock reservation. Proof photos are optional. Refresh and ask staff to review any stock issue."

@@ -35,7 +35,7 @@ function ProofForm({ onClose, pendingRef, titleId, descriptionId }: {
     </div>
     <Label className="mt-5 grid cursor-pointer gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm dark:border-slate-600 dark:bg-slate-800">
       <span className="flex items-center gap-2 font-semibold"><ImagePlus className="size-5 text-red-500" />Proof photo (optional)</span>
-      <Input autoFocus aria-label="Proof-of-delivery photo (optional)" type="file" name="proofPhoto" accept="image/jpeg,image/png,image/webp" disabled={pending} className="w-full min-w-0 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-white" onChange={(event) => {
+      <Input autoFocus aria-label="Proof-of-delivery photo (optional)" type="file" name={photo ? "proofPhoto" : undefined} accept="image/jpeg,image/png,image/webp" disabled={pending} className="w-full min-w-0 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:text-white" onChange={(event) => {
         const file = event.currentTarget.files?.[0] ?? null;
         if (file && (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size === 0 || file.size >= 1024 * 1024)) {
           event.currentTarget.value = "";
