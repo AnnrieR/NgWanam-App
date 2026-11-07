@@ -18,11 +18,12 @@ function load(file, mocks, hooks = React) {
 const discount = load("src/lib/discount-request.ts", {});
 assert(discount.discountReviewNotice.includes("staff or rider"));
 assert.equal(discount.withDiscountRequest("Keep my notes", "none"), "Keep my notes");
-for (const type of ["pwd", "senior"]) {
+for (const type of ["pwd", "senior", "both"]) {
   const note = discount.withDiscountRequest("Keep my notes", type);
   assert(note.endsWith("Keep my notes"));
   assert(note.includes(discount.discountIdReminder) && note.includes(discount.discountReviewNotice));
   assert.equal(discount.discountRequestFromNote(note), type);
+  if (type === "both") assert(note.includes(discount.combinedDiscountReminder));
 }
 assert.equal(discount.discountRequestFromNote(null), null);
 assert.equal(discount.discountRequestFromNote("Ordinary old order notes"), null);
@@ -43,7 +44,7 @@ for (const orderType of ["delivery", "pickup"]) {
     const common = { orderType, paymentMethod, gcashSenderName: "Sender", gcashNumber: "09123456789", gcashReferenceNumber: "test-reference" };
     await assert.rejects(actions.placeOrder({}, form(common)), /redirect:\/orders\/order-id/);
     const baseline = rpcCalls.at(-1);
-    for (const type of ["pwd", "senior", "none"]) {
+    for (const type of ["pwd", "senior", "both", "none"]) {
       await assert.rejects(actions.placeOrder({}, form({ ...common, discountRequest: type, discountIdAcknowledged: "on", discountAmount: "99999", total: "1" })), /redirect:\/orders\/order-id/);
       const payload = rpcCalls.at(-1);
       assert.deepEqual({ ...payload, p_note_to_staff: baseline.p_note_to_staff, p_note_to_driver: baseline.p_note_to_driver }, baseline, "Only existing notes may change; all pricing/payment/cart/RPC args must remain identical");
@@ -54,7 +55,7 @@ for (const orderType of ["delivery", "pickup"]) {
   }
 }
 rpcCalls = [];
-for (const patch of [{ discountRequest: "pwd" }, { discountRequest: "senior", discountIdAcknowledged: "no" }, { discountRequest: "approved" }]) assert((await actions.placeOrder({}, form(patch))).error);
+for (const patch of [{ discountRequest: "pwd" }, { discountRequest: "senior", discountIdAcknowledged: "no" }, { discountRequest: "both" }, { discountRequest: "both", discountIdAcknowledged: "no" }, { discountRequest: "approved" }]) assert((await actions.placeOrder({}, form(patch))).error);
 assert.equal(rpcCalls.length, 0);
 
 function nodes(tree) {
@@ -88,10 +89,27 @@ assert(!byName(tree, "discountIdAcknowledged"));
 assert.equal(byName(tree, "discountRequest").props.value, "none");
 assert(tree.some(node => node.type === icons.PhilippinePeso), "COD must render the Philippine peso icon");
 tree.find(node => node.props?.areas).props.onChange("area-1");
+function toggle(type, checked) {
+  const label = `${discount.discountRequestLabels[type]} discount request`;
+  render().find(node => node.props?.["aria-label"] === label).props.onChange({ currentTarget: { checked } });
+}
+for (const [type, checked, expected] of [["pwd", true, "pwd"], ["senior", true, "both"], ["pwd", false, "senior"], ["senior", false, "none"], ["senior", true, "senior"], ["pwd", true, "both"], ["senior", false, "pwd"], ["pwd", false, "none"]]) {
+  toggle(type, checked);
+  tree = render();
+  assert.equal(byName(tree, "discountRequest").props.value, expected);
+  for (const option of ["pwd", "senior"]) {
+    const checkbox = tree.find(node => node.props?.["aria-label"] === `${discount.discountRequestLabels[option]} discount request`);
+    assert.equal(checkbox.props.checked, expected === option || expected === "both");
+  }
+  if (expected === "both") assert(JSON.stringify(tree).includes("not stacked discounts for one person"));
+}
 for (const orderType of ["delivery", "pickup"]) {
   tree = render(); byName(tree, "orderType").props.onValueChange(orderType);
-  for (const type of ["none", "pwd", "senior"]) {
-    tree = render(); byName(tree, "discountRequest").props.onValueChange(type); tree = render();
+  for (const type of ["none", "pwd", "senior", "both"]) {
+    toggle("pwd", false); toggle("senior", false);
+    if (type === "pwd" || type === "both") toggle("pwd", true);
+    if (type === "senior" || type === "both") toggle("senior", true);
+    tree = render();
     const total = tree.find(node => Object.hasOwn(node.props ?? {}, "data-checkout-total"));
     const expected = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(orderType === "delivery" ? 290 : 240);
     assert.equal(total.props.children, expected, "Discount request must not affect catalog prices, subtotal, delivery fee or total");
@@ -100,10 +118,16 @@ for (const orderType of ["delivery", "pickup"]) {
 }
 const notice = load("src/components/discount-request-notice.tsx", { "lucide-react": icons, "@/lib/discount-request": discount });
 assert.equal(notice.DiscountRequestNotice({ staffNote: "Legacy note", driverNote: null }), null);
-for (const type of ["pwd", "senior"]) {
+for (const type of ["pwd", "senior", "both"]) {
   const banner = notice.DiscountRequestNotice({ staffNote: discount.withDiscountRequest("", type) });
   assert.equal(banner.props.role, "status");
   assert(JSON.stringify(banner).includes("ID owner must be present"));
+  if (type === "both") {
+    assert(JSON.stringify(banner).includes("PWD and Senior Citizen"));
+    assert(JSON.stringify(banner).includes("not stacked discounts for one person"));
+    const rider = notice.DiscountRequestNotice({ staffNote: "Kitchen notes", driverNote: discount.withDiscountRequest("Call on arrival", type) });
+    assert(JSON.stringify(rider).includes("PWD and Senior Citizen"));
+  }
 }
 for (const file of ["src/app/(protected)/orders/[orderId]/page.tsx", "src/app/(protected)/orders/[orderId]/customer-order-tracking.tsx"]) assert(fs.readFileSync(file, "utf8").includes("<DiscountRequestNotice"));
 console.log("PASS discount-review requests: None/PWD/Senior options, ID presence notice/acknowledgment, customer/staff/rider banners, original notes retained, invalid/unacknowledged requests blocked, legacy forms preserved, COD peso icon, delivery/pick-up and COD/GCash payloads unchanged except notes, online totals unchanged. Mocked UI/RPC only; no real orders/payments.");

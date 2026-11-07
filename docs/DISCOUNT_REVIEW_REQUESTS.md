@@ -1,8 +1,11 @@
 # PWD / Senior Citizen review requests
 
-Checkout offers No request (default), PWD, or Senior Citizen. Selecting a request
-shows a notice and requires acknowledgment that a valid ID will be prepared and
-the ID owner will be present at delivery or pick-up. No ID number/photo is collected.
+Checkout offers independent PWD and Senior Citizen checkboxes. Leaving both
+unchecked means no request (default). Both may be selected for different eligible
+customers in one order, not stacked discounts for one person. Selecting a request
+shows a notice and requires acknowledgment that each customer's valid ID will be
+prepared and each ID owner will be present at delivery or pick-up. Changing the
+selection resets the acknowledgment. No ID number/photo is collected.
 
 This is **a request for review by staff or rider**, not proof of eligibility or approval.
 Nothing computes/applies a discount, rewrites totals, reduces the requested GCash
@@ -16,6 +19,8 @@ The server validates the option and ID acknowledgment. An absent option defaults
 to no request for older forms. Requested reviews are prepended to existing staff
 notes, and to driver notes for delivery. Original notes remain intact. Customer,
 staff, admin and rider order-detail screens show an informational request banner.
+The combined request has its own human-readable marker; old single-request
+markers remain supported without rewriting historical notes.
 Legacy orders without the request marker get no new banner. A note marker is not
 an authorization mechanism; a banner never means a discount has been approved.
 

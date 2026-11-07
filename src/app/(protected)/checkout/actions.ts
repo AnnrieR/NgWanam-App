@@ -21,7 +21,7 @@ export async function placeOrder(_: CheckoutState, formData: FormData): Promise<
   // Default to delivery so a stale or hand-edited form cannot invent a type.
   const orderType = stringValue(formData, "orderType") === "pickup" ? "pickup" : "delivery";
   const discountRequest = stringValue(formData, "discountRequest") || "none";
-  if (!["none", "pwd", "senior"].includes(discountRequest)) return { error: "Choose a valid discount-review option." };
+  if (!["none", "pwd", "senior", "both"].includes(discountRequest)) return { error: "Choose a valid discount-review option." };
   // The shared Checkbox submits "on". No ID numbers or ID images are collected.
   if (discountRequest !== "none" && stringValue(formData, "discountIdAcknowledged") !== "on") {
     return { error: "Confirm that you will prepare a valid ID and that the ID owner will be present." };

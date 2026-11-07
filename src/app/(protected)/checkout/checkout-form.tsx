@@ -22,7 +22,7 @@ import { DeliveryAreaPicker } from "@/components/delivery-area-picker";
 import type { DeliveryArea } from "@/lib/delivery-areas";
 import { gcashIsAvailable } from "@/lib/gcash-settings";
 import { GcashQrImage } from "@/components/gcash-qr-image";
-import { discountIdReminder, discountReviewNotice, type DiscountRequest } from "@/lib/discount-request";
+import { combinedDiscountReminder, discountIdReminder, discountRequestLabels, discountReviewNotice, type DiscountRequest } from "@/lib/discount-request";
 
 const money = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
 const panel = "rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900";
@@ -77,18 +77,29 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
         </section>
         <section className={panel} aria-labelledby="discount-request-title">
           <h2 id="discount-request-title" className="mb-2 text-base font-bold">PWD / Senior Citizen discount request</h2>
-          <p className="mb-4 text-xs leading-5 text-muted-foreground">For a PWD or Senior Citizen discount, select the appropriate option below. Staff or rider will verify your valid ID and eligibility. This is a request, not an approved discount.</p>
-          <RadioGroup name="discountRequest" value={discountRequest} disabled={isPending} onValueChange={value => setDiscountRequest(value as DiscountRequest)} aria-labelledby="discount-request-title" className="grid gap-3 sm:grid-cols-3">
-            {[{ value: "none", text: "No request" }, { value: "pwd", text: "PWD" }, { value: "senior", text: "Senior Citizen" }].map(option => <Label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm"><RadioGroupItem value={option.value} />{option.text}</Label>)}
-          </RadioGroup>
+          <p className="mb-4 text-xs leading-5 text-muted-foreground">Select PWD, Senior Citizen, or both for different eligible customers in this order. Leave both unchecked for no request. Staff or rider will verify each customer&apos;s valid ID and eligibility. This is a request, not an approved discount.</p>
+          <input type="hidden" name="discountRequest" value={discountRequest} />
+          <div role="group" aria-labelledby="discount-request-title" className="grid gap-3 sm:grid-cols-2">
+            {(["pwd", "senior"] as const).map(type => <Label key={type} className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm">
+              <Input type="checkbox" aria-label={`${discountRequestLabels[type]} discount request`} checked={discountRequest === type || discountRequest === "both"} disabled={isPending} onChange={event => {
+                const checked = event.currentTarget.checked;
+                setDiscountRequest(previous => {
+                  const other = type === "pwd" ? "senior" : "pwd";
+                  const hasOther = previous === other || previous === "both";
+                  return checked ? (hasOther ? "both" : type) : (hasOther ? other : "none");
+                });
+              }} />{discountRequestLabels[type]}
+            </Label>)}
+          </div>
           <div className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-950 dark:border-orange-900 dark:bg-orange-950/30 dark:text-orange-100">
             <p className="font-semibold">ID requirement for PWD / Senior Citizen requests</p>
             <p>{discountIdReminder}</p>
+            {discountRequest === "both" && <p className="mt-1">{combinedDiscountReminder}</p>}
             <p className="mt-1">{discountReviewNotice}</p>
           </div>
           {discountRequest !== "none" && <div className="mt-3 space-y-3">
-            <p role="status" className="text-xs leading-5 text-muted-foreground">{discountRequest === "pwd" ? "PWD" : "Senior Citizen"} discount review will be included in your order notes for staff or rider. The amount shown remains unchanged.</p>
-            <Label className="flex items-start gap-2 text-xs leading-5"><Input type="checkbox" name="discountIdAcknowledged" required disabled={isPending} />I understand that a valid ID must be ready and the ID owner must be present.</Label>
+            <p role="status" className="text-xs leading-5 text-muted-foreground">{discountRequestLabels[discountRequest]} discount review will be included in your order notes for staff or rider. The amount shown remains unchanged.</p>
+            <Label className="flex items-start gap-2 text-xs leading-5"><Input key={discountRequest} type="checkbox" name="discountIdAcknowledged" required disabled={isPending} />I understand that each eligible customer&apos;s valid ID must be ready and each ID owner must be present.</Label>
           </div>}
         </section>
         <section className={panel}><h2 className="mb-4 text-base font-bold">Payment Method</h2><RadioGroup name="paymentMethod" value={selectedPayment} onValueChange={value => setPayment(String(value))} className="grid gap-3 sm:grid-cols-2">
