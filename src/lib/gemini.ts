@@ -1,6 +1,7 @@
 import "server-only";
 
 import { parseGeminiAnswer, redactChatQuestion, type GeminiAnswer } from "@/lib/chat-assistant";
+import type { ChatOrderTracking } from "@/lib/chat-order-tracking";
 
 const instructions = `You are Ng Wanam Assist, a read-only restaurant customer-support assistant.
 Reply briefly in the customer's language (English, Filipino or Taglish), using plain text, not Markdown links.
@@ -25,6 +26,34 @@ export function geminiConfiguration() {
 }
 
 export async function generateSupportAnswer(question: string, facts: unknown): Promise<GeminiAnswer | null> {
+  return generateAnswer(question, facts, instructions);
+}
+
+/** Construct a fresh allowlist, never serialize the order or the original question. */
+export async function generateOrderTrackingAnswer(question: string, order: ChatOrderTracking): Promise<GeminiAnswer | null> {
+  const statuses: Record<string, string> = {
+    pending: "Waiting for restaurant confirmation", confirmed: "Confirmed; waiting for preparation",
+    preparing: "Being prepared", ready: order.pickup ? "Ready for pick-up" : "Food ready; waiting for rider pick-up",
+    completed: order.pickup ? "Completed / collected" : "Completed", cancelled: "Cancelled",
+  };
+  let currentStatus = statuses[order.status];
+  if (!currentStatus) return null;
+  if (!["completed", "cancelled"].includes(order.status) && !order.pickup) {
+    if (order.deliveryStatus === "out_for_delivery") currentStatus = "Out for delivery";
+    if (order.deliveryStatus === "delivered") currentStatus = "Delivered; awaiting restaurant completion";
+  }
+  const language = /\b(nasaan|asan|saan|po|ko|ako|ang|yung|iyong|na|ba|paki|kumusta|kamusta)\b/i.test(question) ? "Filipino / Taglish" : "English";
+  return generateAnswer("Explain the verified current status of my order.", {
+    currentStatus, fulfillment: order.pickup ? "pick-up" : "delivery", language,
+  }, `You are Ng Wanam Assist. Explain the verified currentStatus in 1–2 short sentences in the supplied language.
+Use only currentStatus and fulfillment. These facts come from an authenticated, ownership-filtered database lookup.
+Explicitly state the current status; do not replace it with a generic instruction to check orders.
+Never invent an order number, timestamps, ETA, GPS location, payment status, rider identity, reasons for delays, or additional progress.
+Do not claim to change or cancel anything. Do not request personal information.
+Refer to the tracking card below for verified details. Return the requested JSON with topic general and text.`);
+}
+
+async function generateAnswer(question: string, facts: unknown, systemInstructions: string): Promise<GeminiAnswer | null> {
   const config = geminiConfiguration();
   if (!config) return null;
   const context = JSON.stringify(facts);
@@ -37,7 +66,7 @@ export async function generateSupportAnswer(question: string, facts: unknown): P
       cache: "no-store",
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: instructions }] },
+        systemInstruction: { parts: [{ text: systemInstructions }] },
         contents: [{ role: "user", parts: [{ text: JSON.stringify({ facts, question: redactChatQuestion(question) }) }] }],
         generationConfig: {
           maxOutputTokens: 700,

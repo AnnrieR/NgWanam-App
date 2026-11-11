@@ -22,11 +22,17 @@ orders, change stock, verify payments, or send notifications.
 - Delivery: active `delivery_areas` names and fees, not the obsolete flat fee.
 - Restaurant: explicitly allowlisted public information from
   `get_restaurant_info`; no secrets, customer profile or QR/proof paths.
-- Order status: deterministic account-owned database lookup. Direct tracking
-  questions bypass the model. For differently worded personal-order questions,
-  Gemini can classify the intent; the server then runs the same ownership-filtered
-  lookup and displays a tracking card. The model is never given order rows,
-  receipts, payments, customer/rider identity, phone or delivery address.
+- Order status: an account-owned database lookup runs **before** Gemini explains
+  the verified status. Direct “Track my order” requests use one budgeted Gemini
+  call. Differently worded personal-order questions may first require Gemini intent
+  classification, followed by a separately budgeted explanation call. Each call
+  reserves its own attempt under the existing limits. A fresh status-only allowlist
+  supplies the current status, delivery/pick-up type and language to the explanation;
+  neither the original question nor order ID, order number, timestamps, full rows,
+  receipts, payments, customer/rider identity, phone or address are sent in that call.
+  The database tracking card remains authoritative. Unknown/missing/unauthorized
+  orders are never passed to the explanation model. Staff/admin/rider accounts
+  still use their own operations pages, not customer tracking.
 
 The AI is instructed to use only the supplied facts, acknowledge missing data,
 not infer delivery fees or ETA, and decline unrelated questions or write requests.
@@ -76,13 +82,17 @@ and a server-only budget RPC. It does not change orders, stock, payments or logs
 - Only the service-role RPC can reserve attempts; browsers cannot choose another
   user's budget or directly read/update counters. Missing budget configuration or
   migration fails closed: no Gemini call is made.
-- At most one provider attempt per question, 500 input characters, bounded
+- One provider attempt for direct tracking/general questions; up to two for a
+  semantic tracking classification followed by its explanation (each budgeted).
+  500 input characters, bounded
   current context (60,000 serialized characters maximum) and 700 output tokens.
 - A 15-second provider timeout; no automatic retries or fallback model costs.
 - Missing/disabled key, quota denial, network/API error, safety block, malformed
-  JSON or truncated output falls back to saved FAQs with an explicit non-AI label.
+  JSON or truncated output falls back to saved FAQs for general questions or the
+  verified tracking card for order questions, with an explicit non-AI label/notice.
 - Guest users receive saved FAQs/sign-in guidance only. Direct authenticated
-  tracking works without external AI or after the AI budget is exhausted.
+  tracking remains available as a database fallback without external AI or after
+  the AI budget is exhausted; successful explanations carry the Gemini AI label.
 
 These are **application request ceilings, not provider free-tier guarantees or
 currency budgets**. Google project/model quota and billing settings still apply,
@@ -92,8 +102,10 @@ calls without disabling saved FAQ help or order lookups.
 
 ## Privacy and UI
 
-- The current question plus allowlisted public restaurant facts go to Google.
-  Full chat history and authenticated order records are not transmitted.
+- For general questions, the current question plus allowlisted public restaurant
+  facts go to Google. For tracking explanations only the verified status,
+  delivery/pick-up type and selected language are sent. Full chat history and
+  authenticated order records are not transmitted. The chat footer discloses this.
 - Common email, Philippine mobile-number and API-key/JWT patterns in the current
   question are redacted. This is not guaranteed anonymization: free-form names,
   addresses or other sensitive text may remain. The UI warns users not to share

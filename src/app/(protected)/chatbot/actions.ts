@@ -5,7 +5,7 @@ import { one } from "@/lib/embedded";
 import { trackingOrderNumber, type ChatOrderTracking } from "@/lib/chat-order-tracking";
 import { isTrackingQuestion } from "@/lib/chat-order-tracking";
 import { MAX_CHAT_QUESTION, type AssistantReply } from "@/lib/chat-assistant";
-import { geminiConfiguration, generateSupportAnswer } from "@/lib/gemini";
+import { geminiConfiguration, generateOrderTrackingAnswer, generateSupportAnswer } from "@/lib/gemini";
 import { getSupportContext } from "@/lib/chat-support-context";
 import { reserveChatAiAttempt } from "@/lib/chat-ai-budget";
 
@@ -44,6 +44,17 @@ export async function getChatOrderTracking(question: string): Promise<TrackingRe
   return { text: number ? "Here's your order status:" : "Here's the status of your latest active order (or your most recent order if none is active):", tracking };
 }
 
+async function trackingAnswer(question: string, userId: string): Promise<AssistantReply> {
+  const lookup = await getChatOrderTracking(question);
+  // No verified order: never ask Gemini to invent one or bypass ownership gates.
+  if (!lookup.tracking) return { source: "database", ...lookup };
+  if (!geminiConfiguration()) return { source: "database", ...lookup, notice: "Gemini is not configured or is disabled. Showing your verified database tracking instead." };
+  if (!await reserveChatAiAttempt(userId)) return { source: "database", ...lookup, notice: "AI support is limited or temporarily unavailable. Your verified tracking is still available below." };
+  const answer = await generateOrderTrackingAnswer(question, lookup.tracking);
+  if (!answer || answer.topic !== "general") return { source: "database", ...lookup, notice: "Gemini could not generate an answer right now. Showing your verified database tracking instead." };
+  return { ...lookup, source: "gemini", text: answer.text, notice: "Gemini AI explanation based on your verified order status. The tracking card shows the database snapshot when you asked." };
+}
+
 export async function askAssistant(question: unknown): Promise<AssistantReply> {
   if (typeof question !== "string" || !question.trim() || question.length > MAX_CHAT_QUESTION) {
     return { source: "fallback", text: `Please enter a question of 1–${MAX_CHAT_QUESTION} characters.` };
@@ -66,10 +77,10 @@ export async function askAssistant(question: unknown): Promise<AssistantReply> {
   const { data: profile } = await supabase.from("profiles").select("role,is_active").eq("id", user.id).single();
   if (!profile?.is_active) return { source: "fallback", text: "Please sign in with an active account to use support." };
 
-  // Exact tracking goes straight to the ownership-filtered lookup, even offline
-  // or after the AI budget is exhausted. Nothing is sent to Google here.
+  // Verify account ownership first, then let Gemini explain status-only facts.
+  // The database card remains available if the provider/budget is unavailable.
   if (isTrackingQuestion(text) || trackingOrderNumber(text)) {
-    return { source: "database", ...await getChatOrderTracking(text) };
+    return trackingAnswer(text, user.id);
   }
   const fallback = async (notice: string): Promise<AssistantReply> => {
     const { data, error } = await supabase.rpc("match_chatbot_rule", { p_message: text });
@@ -86,9 +97,9 @@ export async function askAssistant(question: unknown): Promise<AssistantReply> {
   const answer = await generateSupportAnswer(text, facts);
   if (!answer) return fallback("AI is unavailable right now. Showing saved FAQ help, not an AI answer.");
   if (answer.topic === "order_tracking") {
-    // Semantic order intent: the model only classifies. No private order data
-    // ever reaches Google; account ownership is enforced again on the server.
-    return { source: "database", ...await getChatOrderTracking(text) };
+    // A separate budgeted explanation follows the ownership-filtered lookup.
+    // Only status/fulfillment facts reach Gemini, never a full private order row.
+    return trackingAnswer(text, user.id);
   }
   return { source: "gemini", text: answer.text, notice: "AI-generated using current system data. Confirm prices, availability and fees at checkout." };
 }

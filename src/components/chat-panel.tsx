@@ -186,7 +186,7 @@ export function ChatPanel({ className, messageClassName, customerName, role }: {
           <Send />
         </Button>
       </Form>
-      <p className="mt-2 text-xs text-muted-foreground">Signed-in questions may be sent to Google Gemini. Don&apos;t share personal details or secrets. Chats are saved on this browser and logged for restaurant support. Order lookups stay in the app; cards show the status when asked.</p>
+      <p className="mt-2 text-xs text-muted-foreground">Signed-in questions may be sent to Google Gemini. Don&apos;t share personal details or secrets. Chats are saved on this browser and logged for restaurant support. For tracking explanations, only verified status and delivery/pick-up type are shared with Gemini—not your identity, order ID, address or payment details. Cards show the status when asked.</p>
     </div>
   );
 }
