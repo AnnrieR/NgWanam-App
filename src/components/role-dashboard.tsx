@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 
 import Link from "@/components/navigation-link";
-import { Activity, BarChart3, Bot, Boxes, ClipboardList, LogOut, Menu, Package, PackageCheck, ShieldCheck, Truck, UserRound, UsersRound, Wallet, X } from "lucide-react";
+import { Activity, BarChart3, Bot, Boxes, ClipboardList, LogOut, Menu, MessageSquare, Package, PackageCheck, ShieldCheck, Truck, UserRound, UsersRound, Wallet, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -42,6 +42,7 @@ const navigation = {
     { href: "/admin/orders", label: "Orders & Monitoring", icon: Package },
     { href: "/admin/payments", label: "Payments Monitoring", icon: Wallet },
     { href: "/admin/delivery", label: "Delivery Monitoring", icon: Truck },
+    { href: "/admin/feedback", label: "Rider Feedback", icon: MessageSquare },
     { href: "/admin/delivery-areas", label: "Delivery Areas & Fees", icon: Truck },
     { href: "/admin/reports", label: "Reports", icon: BarChart3 },
     { href: "/admin/activity", label: "Activity Logs", icon: Activity },
@@ -84,8 +85,8 @@ export function RoleDashboard({ children, fullName, role, deliveryAssignments = 
   }, [role, deliveryAssignments]);
 
   return (
-    <div className="font-dashboard min-h-dvh bg-slate-100 dark:bg-slate-950 xl:h-dvh xl:overflow-hidden xl:p-3">
-      <div className="mx-auto flex min-h-dvh max-w-[1440px] flex-col bg-[#fafafa] text-slate-900 dark:bg-slate-900 dark:text-slate-100 xl:h-[calc(100dvh-1.5rem)] xl:min-h-0 xl:overflow-hidden xl:rounded-2xl xl:shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
+    <div className="font-dashboard min-h-dvh bg-slate-100 dark:bg-slate-950 xl:h-dvh xl:overflow-hidden">
+      <div className="flex min-h-dvh w-full flex-col bg-[#fafafa] text-slate-900 dark:bg-slate-900 dark:text-slate-100 xl:h-dvh xl:min-h-0 xl:overflow-hidden">
       <header className="z-30 flex h-16 shrink-0 items-center gap-4 border-b border-slate-100 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 sm:px-6">
         <Button variant="ghost" aria-label="Open dashboard menu" className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden" onClick={() => setOpen(true)} type="button"><Menu className="size-5" /></Button>
         <p className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">{role === "delivery" ? "Rider workspace" : role === "admin" ? "Admin workspace" : "Staff workspace"}</p>

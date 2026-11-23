@@ -66,6 +66,8 @@ for (const [width, height, accountRole, theme] of cases) {
     const end = document.querySelector('#checkout-end').getBoundingClientRect();
     const rect = main.getBoundingClientRect();
     const report = { width: innerWidth, height: innerHeight, pageHeight: document.scrollingElement.scrollHeight, pageWidth: document.scrollingElement.scrollWidth, pageScrollTop: scrollY, mainHeight: main.clientHeight, mainScrollHeight: main.scrollHeight, mainScrollTop: main.scrollTop, overflow: getComputedStyle(main).overflowY, endReachable: end.bottom <= Math.min(rect.bottom, innerHeight) + 1 && end.top >= 0, headerTop: document.querySelector('header').getBoundingClientRect().top };
+    report.shellWidth = document.querySelector('header').parentElement.getBoundingClientRect().width;
+    report.viewportContentWidth = document.documentElement.clientWidth;
     const output = document.createElement('pre'); output.id='scroll-results'; output.style.cssText='position:fixed;display:none'; output.textContent=JSON.stringify(report); document.body.append(output);
   </script></body></html>`);
   const result = spawnSync(browser, ["--headless=new", "--disable-gpu", "--no-first-run", "--disable-extensions", `--user-data-dir=${path.join(temp, `profile-${width}-${accountRole}-${theme}`)}`, `--window-size=${width},${height}`, "--dump-dom", pathToFileURL(file).href], { encoding: "utf8", timeout: 25000, maxBuffer: 12 * 1024 * 1024 });
@@ -73,6 +75,7 @@ for (const [width, height, accountRole, theme] of cases) {
   const encoded = result.stdout.match(/<pre id="scroll-results"[^>]*>([^<]+)<\/pre>/)?.[1];
   assert(encoded, "Browser did not return layout measurements.");
   const measurement = JSON.parse(encoded.replaceAll("&quot;", '"').replaceAll("&amp;", "&"));
+  assert(Math.abs(measurement.shellWidth - measurement.viewportContentWidth) <= 1, `Dashboard shell must fill available viewport width (excluding scrollbar): ${JSON.stringify(measurement)}`);
   assert(measurement.pageWidth <= measurement.width + 1, `Horizontal overflow: ${JSON.stringify(measurement)}`);
   if (accountRole === "customer") {
     assert(measurement.pageHeight > measurement.height && measurement.pageScrollTop > 0, "Customer checkout must use document scrolling at every size");

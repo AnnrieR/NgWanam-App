@@ -17,7 +17,7 @@ export function DeliveryAreaPicker({ areas, value, onChange, failed, disabled }:
   return <div className="space-y-2 sm:col-span-2">
     <p id="delivery-area-label" className="text-xs font-semibold">Delivery area (required)</p>
     <Button type="button" variant="outline" aria-labelledby="delivery-area-label delivery-area-value" aria-haspopup="dialog" disabled={disabled || failed || !areas.length} onClick={() => {setQuery("");setOpen(true);}} className="h-auto min-h-11 w-full justify-start whitespace-normal text-left">
-      <MapPin aria-hidden="true" className="size-4 shrink-0" /><span id="delivery-area-value">{selected ? `${selected.name} · ${money.format(selected.fee)}` : "Search and choose your exact delivery area"}</span>
+      <MapPin aria-hidden="true" className="size-4 shrink-0" /><span id="delivery-area-value" className={selected ? "font-bold text-foreground" : "text-muted-foreground"}>{selected ? `${selected.name} · ${money.format(selected.fee)}` : "Search and choose your exact delivery area"}</span>
     </Button>
     {failed ? <p role="alert" className="text-xs text-red-600 dark:text-red-400">Supported areas could not be loaded. Refresh checkout, or choose pick-up.</p> : !areas.length ? <p role="status" className="text-xs text-muted-foreground">No supported delivery areas are available. Pick-up is still available.</p> : <p className="text-xs leading-5 text-muted-foreground">Fee follows the approved area, not an estimated distance. If your area is missing, contact the restaurant or choose pick-up—do not select a different area.</p>}
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[85dvh] gap-4 overflow-hidden sm:max-w-lg">

@@ -11,6 +11,8 @@
     "test:delivery-proof": "node scripts/test-delivery-proof.mjs",
     "test:delivery-proof:db": "node scripts/test-delivery-proof-db.mjs",
     "test:ui": "node scripts/test-ui-layout.mjs",
+    "test:panel": "node scripts/test-panel-revisions.mjs",
+    "test:feedback:db": "node scripts/test-feedback-db.mjs",
     "test:dashboard-scroll": "node scripts/test-dashboard-scroll.mjs",
     "test:chatbot": "node scripts/test-chatbot-ai.mjs",
     "test:gcash": "node scripts/test-gcash-settings.mjs",

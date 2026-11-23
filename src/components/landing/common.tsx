@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-export const containerClass = "mx-auto w-full max-w-[68rem] px-3 min-[48rem]:px-4";
+export const containerClass = "w-full px-4 sm:px-6 lg:px-10 xl:px-12";
 export const wideContainerClass = containerClass;
 export const bodyTextClass = "my-6 text-xl leading-[1.5]";
 

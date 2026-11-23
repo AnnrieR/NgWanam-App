@@ -26,7 +26,7 @@ import { combinedDiscountReminder, discountIdReminder, discountRequestLabels, di
 
 const money = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" });
 const panel = "rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900";
-const input = "w-full rounded-lg border border-slate-200 bg-transparent px-3 py-2.5 text-sm outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-900";
+const input = "w-full rounded-lg border border-slate-200 bg-transparent px-3 py-2.5 text-sm font-semibold outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-900";
 const label = "grid min-w-0 gap-2 text-xs font-semibold";
 const initialState: CheckoutState = {};
 
@@ -56,14 +56,14 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
   if (!isHydrated) return <div className="h-80 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" aria-label="Loading checkout" />;
   if (!cart.length) return <div className="py-16"><h1 className="text-3xl font-bold">Your cart is empty</h1><p className="my-4 text-slate-500 dark:text-slate-400">Choose your favorite dishes before checking out.</p><Button render={<Link href="/home" />}>Browse dishes</Button></div>;
 
-  return <div className="mx-auto max-w-[1200px]">
+  return <div className="w-full [&_h2]:text-lg [&_h2]:font-bold">
     <header className="mb-5"><h1 className="text-3xl font-bold">Checkout</h1><p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Review your order and complete your payment.</p></header>
     <Form action={formAction} className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
       <input name="cart" type="hidden" value={JSON.stringify(cart.map(({ variant_id, quantity }) => ({ variant_id, quantity })))} />
       <input name="deliveryAreaId" type="hidden" value={orderType === "delivery" ? deliveryAreaId : ""} />
       <input name="expectedDeliveryFee" type="hidden" value={fee ?? ""} />
       <div className="min-w-0 space-y-4">
-        <section className={panel}><h2 className="mb-4 text-base font-bold">{orderType === "pickup" ? "Pick-up Details" : "Delivery Details"}</h2>
+        <section className={panel}><h2 className="mb-4 text-base font-bold">1. {orderType === "pickup" ? "Pick-up Details" : "Delivery Details"}</h2>
           <RadioGroup name="orderType" value={orderType} onValueChange={value => setOrderType(String(value))} className="mb-5 flex flex-wrap gap-4 text-sm">{["delivery", "pickup"].map((type) => <Label key={type} className="flex items-center gap-2"><RadioGroupItem value={type} />{type === "pickup" ? "Pick-up (no delivery fee)" : "Delivery"}</Label>)}</RadioGroup>
           <div className="grid gap-4 sm:grid-cols-2">
             {orderType === "delivery" && <DeliveryAreaPicker areas={deliveryAreas} value={deliveryAreaId} onChange={setDeliveryAreaId} failed={areasFailed} disabled={isPending} />}
@@ -76,7 +76,7 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
           <Disclosure className="mt-4 text-xs"><DisclosureSummary className="cursor-pointer font-semibold text-slate-500 dark:text-slate-400">Requested time & kitchen instructions (optional)</DisclosureSummary><div className="mt-3 grid gap-4 sm:grid-cols-2"><Label className={label}>Requested Time<Input name="requiredAt" type="datetime-local" className={input} /><span className="font-normal text-slate-500 dark:text-slate-400">A request, not a guaranteed delivery time.</span></Label>{orderType === "delivery" && <Label className={label}>Note to Kitchen<Textarea name="noteToStaff" className={input} maxLength={150} /></Label>}</div></Disclosure>
         </section>
         <section className={panel} aria-labelledby="discount-request-title">
-          <h2 id="discount-request-title" className="mb-2 text-base font-bold">PWD / Senior Citizen discount request</h2>
+          <h2 id="discount-request-title" className="mb-2 text-base font-bold">2. PWD / Senior Citizen discount request <span className="text-xs font-normal text-muted-foreground">(optional)</span></h2>
           <p className="mb-4 text-xs leading-5 text-muted-foreground">Select PWD, Senior Citizen, or both for different eligible customers in this order. Leave both unchecked for no request. Staff or rider will verify each customer&apos;s valid ID and eligibility. This is a request, not an approved discount.</p>
           <input type="hidden" name="discountRequest" value={discountRequest} />
           <div role="group" aria-labelledby="discount-request-title" className="grid gap-3 sm:grid-cols-2">
@@ -102,8 +102,8 @@ export function CheckoutForm({ defaultContactName, defaultContactPhone, defaultA
             <Label className="flex items-start gap-2 text-xs leading-5"><Input key={discountRequest} type="checkbox" name="discountIdAcknowledged" required disabled={isPending} />I understand that each eligible customer&apos;s valid ID must be ready and each ID owner must be present.</Label>
           </div>}
         </section>
-        <section className={panel}><h2 className="mb-4 text-base font-bold">Payment Method</h2><RadioGroup name="paymentMethod" value={selectedPayment} onValueChange={value => setPayment(String(value))} className="grid gap-3 sm:grid-cols-2">
-          {[{ value: "cod", icon: PhilippinePeso, title: orderType === "pickup" ? "COD · Pay on Pick-up" : "COD (Cash on Delivery)", text: "Pay in cash upon receiving your order." }, { value: "gcash", icon: Wallet, title: "Manual GCash", text: "Send payment via GCash and enter payment details." }].map(({ value, icon: Icon, title, text }) => <Label key={value} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${selectedPayment === value ? "border-red-500" : "border-slate-200 dark:border-slate-700"}`}><RadioGroupItem value={value} disabled={value === "gcash" && !gcashAvailable} /><Icon aria-hidden="true" className="size-6 shrink-0 text-red-500" /><span><span className="block text-xs font-bold">{title}</span><span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">{value === "gcash" && !gcashAvailable ? "Not configured / unavailable" : text}</span></span></Label>)}
+        <section className={panel}><h2 className="mb-4 text-base font-bold">3. Payment Method</h2><RadioGroup name="paymentMethod" value={selectedPayment} onValueChange={value => setPayment(String(value))} className="grid gap-3 sm:grid-cols-2">
+          {[{ value: "cod", icon: PhilippinePeso, title: orderType === "pickup" ? "COD · Pay on Pick-up" : "COD (Cash on Delivery)", text: "Pay in cash upon receiving your order." }, { value: "gcash", icon: Wallet, title: "GCash", text: "Send payment via GCash and enter payment details." }].map(({ value, icon: Icon, title, text }) => <Label key={value} className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${selectedPayment === value ? "border-red-500 bg-red-50 dark:bg-red-950/30" : "border-slate-200 dark:border-slate-700"}`}><RadioGroupItem value={value} disabled={value === "gcash" && !gcashAvailable} /><Icon aria-hidden="true" className="size-6 shrink-0 text-red-500" /><span><span className="block text-sm font-bold">{title}</span><span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">{value === "gcash" && !gcashAvailable ? "Not configured / unavailable" : text}</span></span></Label>)}
           </RadioGroup>
           {selectedPayment === "gcash" && <div className="mt-5 overflow-hidden rounded-lg border border-orange-200 dark:border-orange-900"><p className="flex items-center gap-2 bg-orange-50 p-3 text-xs dark:bg-orange-950/30"><Info className="size-4 text-orange-500" />Please enter your GCash payment details manually.</p><div className="space-y-3 p-3"><p className="text-xs" data-gcash-recipient>Send payment to <strong>{gcashAccountName}</strong>: {gcashAccountNumber}</p><p className="text-xs text-muted-foreground">Verify this recipient in GCash before sending money. The fields below are your sender details, not the restaurant&apos;s account.</p>{gcashQrPath && <GcashQrImage key={gcashQrPath} src={gcashQrPath} />}<div className="grid gap-3 sm:grid-cols-3"><Label className={label}>Name of Sender<Input name="gcashSenderName" className={input} required /></Label><Label className={label}>Sender GCash Number<Input name="gcashNumber" className={input} type="tel" required /></Label><Label className={label}>Reference Number<Input name="gcashReferenceNumber" className={input} required /></Label></div><p className="text-xs text-slate-500 dark:text-slate-400">Payment is verified by staff after you place the order.</p></div></div>}
         </section>

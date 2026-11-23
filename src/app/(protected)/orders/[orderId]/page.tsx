@@ -92,7 +92,7 @@ export default async function OrderPage({ params, searchParams }: OrderPageProps
   const canComplete = isPickup || delivery?.status === "delivered";
 
   const content = (
-      <div className="mx-auto max-w-[1440px]">
+      <div className="w-full">
         {isNew === "1" && <ClearCart />}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-100" href={backHref}><ArrowLeft className="size-3.5" />Back to Orders</Link>
